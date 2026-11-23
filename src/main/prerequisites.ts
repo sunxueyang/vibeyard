@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { execSync } from 'child_process';
-import { isWin, pathSep, whichCmd } from './platform';
+import { isWin, pathSep, whichCmd, pythonAvailable } from './platform';
 
 /**
  * Check whether Python is available on Windows (needed for hook scripts).
@@ -10,18 +10,14 @@ import { isWin, pathSep, whichCmd } from './platform';
  */
 export function checkPythonAvailable(): string | null {
   if (!isWin) return null;
-  try {
-    execSync('python --version', { encoding: 'utf-8', timeout: 3000, stdio: 'pipe' });
-    return null;
-  } catch {
-    return (
-      'Python not found.\n\n' +
-      'Vibeyard uses Python on Windows for session tracking (cost, status, events).\n' +
-      'These features will not work until Python is installed and available on PATH.\n\n' +
-      'Install Python from https://www.python.org/downloads/ or via:\n' +
-      '  winget install Python.Python.3\n'
-    );
-  }
+  if (pythonAvailable) return null;
+  return (
+    'Python not found.\n\n' +
+    'Vibeyard uses Python on Windows for session tracking (cost, status, events).\n' +
+    'These features will not work until Python is installed and available on PATH.\n\n' +
+    'Install Python from https://www.python.org/downloads/ or via:\n' +
+    '  winget install Python.Python.3\n'
+  );
 }
 
 export function validatePrerequisites(): { ok: boolean; message: string } {

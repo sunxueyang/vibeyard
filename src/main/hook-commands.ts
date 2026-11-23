@@ -188,7 +188,7 @@ export function statusCmd(
   if (isWin) {
     const py = path.join(SCRIPT_DIR, 'status_writer.py').replace(/\\/g, '/');
     const dir = STATUS_DIR.replace(/\\/g, '/');
-    return `python "${py}" "${event}" "${status}" "${sessionIdVar}" "${dir}" "${hookMarker}"`;
+    return `${PY} "${py}" "${event}" "${status}" "${sessionIdVar}" "${dir}" "${hookMarker}"`;
   }
   return `sh -c 'mkdir -p ${STATUS_DIR} && echo ${event}:${status} > ${STATUS_DIR}/$${sessionIdVar}.status ${hookMarker}'`;
 }
