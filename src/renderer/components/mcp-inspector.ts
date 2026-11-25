@@ -23,18 +23,18 @@ export function createInspectorPane(sessionId: string): void {
 
   pane.innerHTML = `
     <div class="mcp-inspector-header">
-      <input class="mcp-url-input" type="text" placeholder="MCP server URL (e.g. http://localhost:3000/mcp)" />
-      <button class="mcp-connect-btn">Connect</button>
+      <input class="mcp-url-input" type="text" placeholder="MCP 服务器 URL（如 http://localhost:3000/mcp）" />
+      <button class="mcp-connect-btn">连接</button>
       <span class="mcp-status disconnected"></span>
     </div>
     <div class="mcp-inspector-body">
       <div class="mcp-inspector-nav">
-        <button class="mcp-nav-tab active" data-tab="tools">Tools <span class="mcp-nav-count">0</span></button>
-        <button class="mcp-nav-tab" data-tab="resources">Resources <span class="mcp-nav-count">0</span></button>
-        <button class="mcp-nav-tab" data-tab="prompts">Prompts <span class="mcp-nav-count">0</span></button>
+        <button class="mcp-nav-tab active" data-tab="tools">工具 <span class="mcp-nav-count">0</span></button>
+        <button class="mcp-nav-tab" data-tab="resources">资源 <span class="mcp-nav-count">0</span></button>
+        <button class="mcp-nav-tab" data-tab="prompts">提示词 <span class="mcp-nav-count">0</span></button>
       </div>
       <div class="mcp-inspector-content">
-        <div class="mcp-empty-content">Connect to an MCP server to inspect its capabilities</div>
+        <div class="mcp-empty-content">连接到 MCP 服务器以查看其能力</div>
       </div>
     </div>
   `;
@@ -93,21 +93,21 @@ async function doConnect(
   content: HTMLElement,
 ): Promise<void> {
   btn.disabled = true;
-  btn.textContent = 'Connecting...';
+  btn.textContent = '正在连接…';
   dot.className = 'mcp-status connecting';
 
   const result = await window.vibeyard.mcp.connect(sessionId, url);
   if (result.success) {
     instance.connected = true;
     instance.url = url;
-    btn.textContent = 'Disconnect';
+    btn.textContent = '断开连接';
     dot.className = 'mcp-status connected';
     urlInput.disabled = true;
     await refreshLists(sessionId, instance, content);
   } else {
     dot.className = 'mcp-status disconnected';
-    btn.textContent = 'Connect';
-    content.innerHTML = `<div class="mcp-error">Connection failed: ${esc(result.error || 'Unknown error')}</div>`;
+    btn.textContent = '连接';
+    content.innerHTML = `<div class="mcp-error">连接失败：${esc(result.error || '未知错误')}</div>`;
   }
   btn.disabled = false;
 }
@@ -124,12 +124,12 @@ async function doDisconnect(
   instance.toolsList = [];
   instance.resourcesList = [];
   instance.promptsList = [];
-  btn.textContent = 'Connect';
+  btn.textContent = '连接';
   dot.className = 'mcp-status disconnected';
   const urlInput = instance.element.querySelector('.mcp-url-input') as HTMLInputElement;
   urlInput.disabled = false;
   updateCounts(instance);
-  content.innerHTML = '<div class="mcp-empty-content">Disconnected</div>';
+  content.innerHTML = '<div class="mcp-empty-content">已断开连接</div>';
 }
 
 async function refreshLists(sessionId: string, instance: McpInspectorInstance, content: HTMLElement): Promise<void> {
@@ -158,26 +158,26 @@ function renderContent(sessionId: string, instance: McpInspectorInstance, conten
   content.innerHTML = '';
 
   if (!instance.connected) {
-    content.innerHTML = '<div class="mcp-empty-content">Connect to an MCP server to inspect its capabilities</div>';
+    content.innerHTML = '<div class="mcp-empty-content">连接到 MCP 服务器以查看其能力</div>';
     return;
   }
 
   switch (instance.activeTab) {
     case 'tools':
-      renderToolsList(sessionId, instance.toolsList, content);
+      renderToolList(sessionId, instance.toolsList, content);
       break;
     case 'resources':
-      renderResourcesList(sessionId, instance.resourcesList, content);
+      renderResourceList(sessionId, instance.resourcesList, content);
       break;
     case 'prompts':
-      renderPromptsList(sessionId, instance.promptsList, content);
+      renderPromptList(sessionId, instance.promptsList, content);
       break;
   }
 }
 
-function renderToolsList(sessionId: string, tools: unknown[], container: HTMLElement): void {
+function renderToolList(sessionId: string, tools: unknown[], container: HTMLElement): void {
   if (tools.length === 0) {
-    container.innerHTML = '<div class="mcp-empty-content">No tools available</div>';
+    container.innerHTML = '<div class="mcp-empty-content">暂无工具</div>';
     return;
   }
 
@@ -210,22 +210,22 @@ function renderToolsList(sessionId: string, tools: unknown[], container: HTMLEle
 
         const execBtn = document.createElement('button');
         execBtn.className = 'mcp-exec-btn';
-        execBtn.textContent = 'Execute';
+        execBtn.textContent = '执行';
 
         const resultPre = document.createElement('pre');
         resultPre.className = 'mcp-result hidden';
 
         execBtn.addEventListener('click', async () => {
           execBtn.disabled = true;
-          execBtn.textContent = 'Executing...';
+          execBtn.textContent = '正在执行…';
           resultPre.classList.remove('hidden');
-          resultPre.textContent = 'Loading...';
+          resultPre.textContent = '加载中…';
 
           const args = formRef ? formRef.getValues() : {};
           const res = await window.vibeyard.mcp.callTool(sessionId, tool.name, args);
           resultPre.textContent = JSON.stringify(res.success ? res.data : { error: res.error }, null, 2);
           execBtn.disabled = false;
-          execBtn.textContent = 'Execute';
+          execBtn.textContent = '执行';
         });
 
         body.appendChild(execBtn);
@@ -239,9 +239,9 @@ function renderToolsList(sessionId: string, tools: unknown[], container: HTMLEle
   }
 }
 
-function renderResourcesList(sessionId: string, resources: unknown[], container: HTMLElement): void {
+function renderResourceList(sessionId: string, resources: unknown[], container: HTMLElement): void {
   if (resources.length === 0) {
-    container.innerHTML = '<div class="mcp-empty-content">No resources available</div>';
+    container.innerHTML = '<div class="mcp-empty-content">暂无资源</div>';
     return;
   }
 
@@ -265,7 +265,7 @@ function renderResourcesList(sessionId: string, resources: unknown[], container:
       if (!isOpen && body.children.length === 0) {
         const resultPre = document.createElement('pre');
         resultPre.className = 'mcp-result';
-        resultPre.textContent = 'Loading...';
+        resultPre.textContent = '加载中…';
         body.appendChild(resultPre);
 
         const res = await window.vibeyard.mcp.readResource(sessionId, resource.uri);
@@ -279,9 +279,9 @@ function renderResourcesList(sessionId: string, resources: unknown[], container:
   }
 }
 
-function renderPromptsList(sessionId: string, prompts: unknown[], container: HTMLElement): void {
+function renderPromptList(sessionId: string, prompts: unknown[], container: HTMLElement): void {
   if (prompts.length === 0) {
-    container.innerHTML = '<div class="mcp-empty-content">No prompts available</div>';
+    container.innerHTML = '<div class="mcp-empty-content">暂无提示词</div>';
     return;
   }
 
@@ -330,16 +330,16 @@ function renderPromptsList(sessionId: string, prompts: unknown[], container: HTM
 
         const execBtn = document.createElement('button');
         execBtn.className = 'mcp-exec-btn';
-        execBtn.textContent = 'Run';
+        execBtn.textContent = '运行';
 
         const resultPre = document.createElement('pre');
         resultPre.className = 'mcp-result hidden';
 
         execBtn.addEventListener('click', async () => {
           execBtn.disabled = true;
-          execBtn.textContent = 'Running...';
+          execBtn.textContent = '正在运行…';
           resultPre.classList.remove('hidden');
-          resultPre.textContent = 'Loading...';
+          resultPre.textContent = '加载中…';
 
           const args: Record<string, string> = {};
           if (argInputs) {
@@ -350,7 +350,7 @@ function renderPromptsList(sessionId: string, prompts: unknown[], container: HTM
           const res = await window.vibeyard.mcp.getPrompt(sessionId, prompt.name, args);
           resultPre.textContent = JSON.stringify(res.success ? res.data : { error: res.error }, null, 2);
           execBtn.disabled = false;
-          execBtn.textContent = 'Run';
+          execBtn.textContent = '运行';
         });
 
         body.appendChild(execBtn);

@@ -33,12 +33,12 @@ function confirmAndClose(
   }
   const isSingle = active.length === 1;
   showConfirmDialog(
-    isSingle ? 'Close session' : 'Close sessions',
+    isSingle ? '关闭会话' : '关闭多个会话',
     isSingle
-      ? `'${active[0].name}' is still active. Closing will interrupt it.`
-      : `${active.length} sessions are still active. Closing will interrupt them.`,
+      ? `“${active[0].name}”仍在运行，关闭将中断该会话。`
+      : `仍有 ${active.length} 个会话在运行，关闭将中断这些会话。`,
     {
-      confirmLabel: isSingle ? 'Close' : 'Close all',
+      confirmLabel: isSingle ? '关闭' : '全部关闭',
       onConfirm: remove,
     },
   );
@@ -127,12 +127,12 @@ export function confirmAppClose(onConfirm: () => void): void {
   }
   const isSingle = count === 1;
   showConfirmDialog(
-    'Quit Vibeyard',
+    '退出 Vibeyard',
     isSingle
-      ? 'A session is still active. Quitting will interrupt it.'
-      : `${count} sessions are still active. Quitting will interrupt them.`,
+      ? '仍有会话在运行，退出将中断该会话。'
+      : `仍有 ${count} 个会话在运行，退出将中断这些会话。`,
     {
-      confirmLabel: 'Quit',
+      confirmLabel: '退出',
       onConfirm,
     },
   );

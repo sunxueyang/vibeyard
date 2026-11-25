@@ -32,7 +32,8 @@ export function showTerminalContextMenu(
   x: number,
   y: number,
   terminal: Terminal,
-  writeToPty: (data: string) => void
+  writeToPty: (data: string) => void,
+  handlePasteImage?: () => Promise<boolean>
 ): void {
   hideTerminalContextMenu();
 
@@ -56,10 +57,14 @@ export function showTerminalContextMenu(
   menu.appendChild(copyItem);
 
   const pasteItem = makeItem(t('contextMenu.terminal.paste'), isMac ? '⌘V' : 'Ctrl+V');
-  pasteItem.addEventListener('click', (e) => {
+  pasteItem.addEventListener('click', async (e) => {
     e.stopPropagation();
     hideTerminalContextMenu();
     terminal.focus();
+    if (handlePasteImage) {
+      const handled = await handlePasteImage().catch(() => false);
+      if (handled) return;
+    }
     navigator.clipboard.readText().then((text) => {
       if (!text) return;
       writeToPty(wrapBracketedPaste(terminal, text));

@@ -60,7 +60,7 @@ export function showAlertBanner(config: AlertBannerConfig): void {
     const onDismiss = config.onDismiss;
     const dismissBtn = document.createElement('button');
     dismissBtn.className = 'insight-alert-dismiss';
-    dismissBtn.textContent = "Don\u2019t show again";
+    dismissBtn.textContent = '不再提示';
     dismissBtn.addEventListener('click', () => {
       onDismiss();
       removeAlertBanner();

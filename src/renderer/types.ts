@@ -1,5 +1,5 @@
 export type { McpServer, Agent, Skill, Command, ProviderConfig, ClaudeConfig, GitWorktree, GitFileEntry, CostData, McpResult, ProviderId, CliProviderMeta, CliProviderCapabilities, StatsCache, ReadinessResult, ReadinessCategory, ReadinessCheck, ReadinessCheckStatus, ChromeProfile, ChromeImportOptions, ChromeImportProgress, ChromeImportResult, ClipboardSource } from '../shared/types.js';
-import type { CostData, ProviderConfig, GitWorktree, McpResult, ProviderId, CliProviderMeta, StatsCache, ReadinessResult, TopFilesResult, FsChange, ChromeProfile, ChromeImportOptions, ChromeImportProgress, ChromeImportResult, ClipboardSource } from '../shared/types.js';
+import type { CostData, ProviderConfig, GitWorktree, McpResult, ProviderId, CliProviderMeta, StatsCache, ReadinessResult, TopFilesResult, FsChange, ChromeProfile, ChromeImportOptions, ChromeImportProgress, ChromeImportResult, ClipboardSource, SessionAttachments } from '../shared/types.js';
 import type { CtlCommand, CtlResult } from '../shared/ctl-protocol.js';
 
 export interface VibeyardApi {
@@ -23,6 +23,12 @@ export interface VibeyardApi {
     onCostData(callback: (sessionId: string, costData: CostData) => void): () => void;
     onSessionName(callback: (sessionId: string, name: string, cliSessionId: string) => void): () => void;
     resyncStatus(): void;
+    attachments(opts: {
+      providerId: ProviderId;
+      cliSessionId: string | null;
+      projectPath: string;
+      configDir?: string;
+    }): Promise<SessionAttachments>;
   };
   ctl: {
     onCommand(callback: (reqId: string, callerId: string, command: CtlCommand) => void): () => void;
@@ -44,10 +50,15 @@ export interface VibeyardApi {
     watchDir(dirPath: string): void;
     unwatchDir(dirPath: string): void;
     onFsChange(callback: (changes: FsChange[]) => void): () => void;
+    getDroppedFilePath(file: File): string;
   };
   store: {
     load(): Promise<unknown>;
     save(state: unknown): Promise<void>;
+  };
+  cache: {
+    getStats(): Promise<{ entries: number; bytes: number }>;
+    clear(): Promise<void>;
   };
   profiles: {
     provision(profileId: string, customPath?: string): Promise<{ configDir: string; managed: boolean }>;
@@ -110,6 +121,7 @@ export interface VibeyardApi {
   };
   clipboard: {
     write(text: string, source?: ClipboardSource): Promise<void>;
+    saveClipboardImage(projectPath?: string): Promise<{ hasImage: boolean; filePath: string | null }>;
   };
   menu: {
     onNewProject(callback: () => void): () => void;

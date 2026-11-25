@@ -5,12 +5,33 @@ import { buildKanbanSession } from './session-factory.js';
 
 export function createDefaultBoard(): BoardData {
   const columns: BoardColumn[] = [
-    { id: crypto.randomUUID(), title: 'Backlog', order: 0, behavior: 'inbox' },
-    { id: crypto.randomUUID(), title: 'Ready',   order: 1, behavior: 'none' },
-    { id: crypto.randomUUID(), title: 'Running', order: 2, behavior: 'active' },
-    { id: crypto.randomUUID(), title: 'Done',    order: 3, behavior: 'terminal' },
+    { id: crypto.randomUUID(), title: '待办', order: 0, behavior: 'inbox' },
+    { id: crypto.randomUUID(), title: '就绪', order: 1, behavior: 'none' },
+    { id: crypto.randomUUID(), title: '运行中', order: 2, behavior: 'active' },
+    { id: crypto.randomUUID(), title: '完成', order: 3, behavior: 'terminal' },
   ];
   return { columns, tasks: [] };
+}
+
+/**
+ * Legacy English default kanban column titles → Chinese. Exact, case-sensitive
+ * match only, so columns the user renamed are left untouched. Applied once on
+ * load; after the first run the titles are Chinese and no longer match.
+ */
+const LEGACY_COLUMN_TITLES: Record<string, string> = {
+  Backlog: '待办',
+  Ready: '就绪',
+  Running: '运行中',
+  Done: '完成',
+};
+
+/** Translate the built-in board columns created before the Chinese localization. */
+function migrateLegacyBoardColumns(project: ProjectRecord): void {
+  if (!project.board) return;
+  for (const column of project.board.columns) {
+    const translated = LEGACY_COLUMN_TITLES[column.title];
+    if (translated) column.title = translated;
+  }
 }
 
 /**
@@ -20,6 +41,7 @@ export function createDefaultBoard(): BoardData {
 export function hydrateLoadedState(state: PersistedState, defaultPreferences: Preferences): void {
   state.preferences = { ...defaultPreferences, ...state.preferences };
   for (const project of state.projects) {
+    migrateLegacyBoardColumns(project);
     for (const session of project.sessions) {
       if (session.cost) restoreCost(session.id, session.cost);
       if (session.contextWindow) restoreContext(session.id, session.contextWindow);

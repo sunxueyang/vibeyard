@@ -1,6 +1,7 @@
 import { execFile } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
+import { isLikelyBinaryFile } from './fs-utils';
 import type { GitWorktree, GitFileEntry } from '../shared/types';
 
 export type { GitWorktree, GitFileEntry } from '../shared/types';
@@ -31,7 +32,7 @@ export function getGitStatus(cwd: string): Promise<GitStatus> {
   return new Promise((resolve) => {
     execFile(
       'git',
-      ['status', '--porcelain=v2', '--branch', '--untracked-files=all'],
+      ['-c', 'core.quotepath=false', 'status', '--porcelain=v2', '--branch', '--untracked-files=all'],
       { cwd, timeout: 5000 },
       (err, stdout) => {
         if (err) {
@@ -93,6 +94,14 @@ export function getGitDiff(cwd: string, filePath: string, area: string): Promise
       // Read file content and format as "all added" diff
       const fullPath = path.join(cwd, filePath);
       try {
+        // Binary files (images, archives, compiled output, ...) cannot be
+        // represented as a meaningful text diff. Reading them as UTF-8 and
+        // prefixing every line with '+' produces a wall of garbled glyphs, so
+        // surface a clear placeholder instead.
+        if (isLikelyBinaryFile(fullPath)) {
+          resolve(`Binary file "${filePath}" not shown (binary content).`);
+          return;
+        }
         const content = fs.readFileSync(fullPath, 'utf-8');
         const lines = content.split('\n');
         const header = `--- /dev/null\n+++ b/${filePath}\n@@ -0,0 +1,${lines.length} @@\n`;
@@ -105,8 +114,8 @@ export function getGitDiff(cwd: string, filePath: string, area: string): Promise
     }
 
     const args = area === 'staged'
-      ? ['diff', '--cached', '--', filePath]
-      : ['diff', '--', filePath];
+      ? ['-c', 'core.quotepath=false', 'diff', '--cached', '--', filePath]
+      : ['-c', 'core.quotepath=false', 'diff', '--', filePath];
 
     execFile(
       'git',
@@ -136,7 +145,7 @@ export function getGitFiles(cwd: string): Promise<GitFileEntry[]> {
   return new Promise((resolve) => {
     execFile(
       'git',
-      ['status', '--porcelain=v2', '--untracked-files=all'],
+      ['-c', 'core.quotepath=false', 'status', '--porcelain=v2', '--untracked-files=all'],
       { cwd, timeout: 5000, maxBuffer: 1024 * 1024 },
       (err, stdout) => {
         if (err) {

@@ -708,3 +708,18 @@ export type TopFilesResult =
  * populates the X11 PRIMARY selection so middle-click paste works).
  */
 export type ClipboardSource = 'selection' | 'explicit';
+
+/** Files a session read (resources) versus wrote/edited (artifacts). */
+export type AttachmentKind = 'resource' | 'artifact';
+
+export interface AttachmentItem {
+  path: string;
+  kind: AttachmentKind;
+  /** How many times the relevant tool touched this file in the session. */
+  touches: number;
+}
+
+export interface SessionAttachments {
+  resources: AttachmentItem[];
+  artifacts: AttachmentItem[];
+}

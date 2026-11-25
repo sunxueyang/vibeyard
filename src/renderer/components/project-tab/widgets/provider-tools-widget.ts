@@ -12,7 +12,8 @@ import type { ProviderConfig, ProviderId, McpServer, Agent, Skill, Command } fro
 import type { WidgetFactory, WidgetHost, WidgetInstance } from './widget-host.js';
 
 function scopeBadge(scope: 'user' | 'project'): string {
-  return `<span class="scope-badge ${scope}">${scope}</span>`;
+  const label = scope === 'user' ? '用户' : '项目';
+  return `<span class="scope-badge ${scope}">${label}</span>`;
 }
 
 export const createProviderToolsWidget: WidgetFactory = (host: WidgetHost): WidgetInstance => {
@@ -26,7 +27,7 @@ export const createProviderToolsWidget: WidgetFactory = (host: WidgetHost): Widg
 
   const body = document.createElement('div');
   body.className = 'project-tab-tools-body';
-  body.innerHTML = '<div class="config-loading">Loading...</div>';
+  body.innerHTML = '<div class="config-loading">加载中…</div>';
   root.appendChild(body);
 
   // Per-instance provider selection (don't share across widget instances).
@@ -56,10 +57,10 @@ export const createProviderToolsWidget: WidgetFactory = (host: WidgetHost): Widg
     const removeBtn = document.createElement('button');
     removeBtn.className = 'config-item-remove-btn';
     removeBtn.textContent = '×';
-    removeBtn.title = 'Remove server';
+    removeBtn.title = '移除服务器';
     removeBtn.addEventListener('click', async (e) => {
       e.stopPropagation();
-      if (!confirm(`Remove MCP server "${server.name}"?`)) return;
+      if (!confirm(`确定移除 MCP 服务器“${server.name}”吗？`)) return;
       await window.vibeyard.mcp.removeServer(server.name, server.filePath, server.scope, projectPath);
       void refresh();
     });
@@ -113,7 +114,7 @@ export const createProviderToolsWidget: WidgetFactory = (host: WidgetHost): Widg
       const addBtn = document.createElement('button');
       addBtn.className = 'config-section-add-btn';
       addBtn.textContent = '+';
-      addBtn.title = `Add ${title.replace(/s$/, '')}`;
+      addBtn.title = `添加${title}`;
       addBtn.addEventListener('click', (e) => { e.stopPropagation(); onAdd(); });
       sectionHeader.appendChild(addBtn);
     }
@@ -124,7 +125,7 @@ export const createProviderToolsWidget: WidgetFactory = (host: WidgetHost): Widg
     if (items.length === 0) {
       const empty = document.createElement('div');
       empty.className = 'config-empty';
-      empty.textContent = 'None configured';
+      empty.textContent = '暂未配置';
       sectionBody.appendChild(empty);
     } else {
       items.forEach(el => sectionBody.appendChild(el));
@@ -202,7 +203,7 @@ export const createProviderToolsWidget: WidgetFactory = (host: WidgetHost): Widg
     body.innerHTML = '';
 
     body.appendChild(renderSection(
-      'MCP Servers',
+      'MCP 服务器',
       config.mcpServers.map(s => mcpItem(s, projectPath)),
       config.mcpServers.length,
       providerId === 'claude' ? () => showMcpAddModal(() => void refresh()) : undefined,
@@ -222,7 +223,7 @@ export const createProviderToolsWidget: WidgetFactory = (host: WidgetHost): Widg
 
     if (providerId !== 'codex' && providerId !== 'copilot') {
       body.appendChild(renderSection(
-        'Commands',
+        '命令',
         config.commands.map(commandItem),
         config.commands.length,
       ));

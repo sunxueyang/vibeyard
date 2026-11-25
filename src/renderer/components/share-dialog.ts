@@ -25,7 +25,7 @@ export function showShareDialog(sessionId: string): void {
 
   // Title
   const title = document.createElement('h3');
-  title.textContent = 'Share Session';
+  title.textContent = '共享会话';
   dialog.appendChild(title);
 
   // ── Phase 1: Permission + Disclaimers ──
@@ -35,12 +35,12 @@ export function showShareDialog(sessionId: string): void {
 
   const notice = document.createElement('div');
   notice.className = 'share-notice';
-  notice.textContent = 'Your full terminal scrollback history will be shared with the peer.';
+  notice.textContent = '你的完整终端滚动历史将共享给对方。';
   phase1.appendChild(notice);
 
   const rwWarning = document.createElement('div');
   rwWarning.className = 'share-notice hidden';
-  rwWarning.textContent = 'Read-write mode allows the peer to type into your terminal and execute commands. Only share with people you trust.';
+  rwWarning.textContent = '读写模式允许对方在你的终端中输入并执行命令。请仅与你信任的人共享。';
   phase1.appendChild(rwWarning);
 
   const modeSection = document.createElement('div');
@@ -48,14 +48,14 @@ export function showShareDialog(sessionId: string): void {
 
   const modeLabel = document.createElement('div');
   modeLabel.className = 'share-label';
-  modeLabel.textContent = 'Access level';
+  modeLabel.textContent = '访问级别';
   modeSection.appendChild(modeLabel);
 
   const modeGroup = document.createElement('div');
   modeGroup.className = 'share-radio-group';
 
-  const readonlyRadio = createRadio('share-mode', 'readonly', 'Read-only', true);
-  const readwriteRadio = createRadio('share-mode', 'readwrite', 'Read-write', false);
+  const readonlyRadio = createRadio('share-mode', 'readonly', '只读', true);
+  const readwriteRadio = createRadio('share-mode', 'readwrite', '读写', false);
   modeGroup.appendChild(readonlyRadio);
   modeGroup.appendChild(readwriteRadio);
   modeSection.appendChild(modeGroup);
@@ -79,7 +79,7 @@ export function showShareDialog(sessionId: string): void {
 
   const pinLabel = document.createElement('div');
   pinLabel.className = 'share-label';
-  pinLabel.textContent = 'Choose a PIN (4–8 digits) to share with your peer';
+  pinLabel.textContent = '选择一个 PIN 码（4–8 位）以共享给对方';
 
   const pinInput = createPinInput();
   pinSection.appendChild(pinLabel);
@@ -92,7 +92,7 @@ export function showShareDialog(sessionId: string): void {
 
   const offerLabel = document.createElement('div');
   offerLabel.className = 'share-label';
-  offerLabel.textContent = 'Send this code to your peer';
+  offerLabel.textContent = '将此连接码发送给对方';
   offerSection.appendChild(offerLabel);
 
   const offerTextarea = document.createElement('textarea');
@@ -103,11 +103,11 @@ export function showShareDialog(sessionId: string): void {
 
   const copyOfferBtn = document.createElement('button');
   copyOfferBtn.className = 'btn-secondary share-btn';
-  copyOfferBtn.textContent = 'Copy Code';
+  copyOfferBtn.textContent = '复制连接码';
   copyOfferBtn.addEventListener('click', () => {
     navigator.clipboard.writeText(offerTextarea.value);
-    copyOfferBtn.textContent = 'Copied!';
-    setTimeout(() => { copyOfferBtn.textContent = 'Copy Code'; }, 1500);
+    copyOfferBtn.textContent = '已复制！';
+    setTimeout(() => { copyOfferBtn.textContent = '复制连接码'; }, 1500);
   });
   offerSection.appendChild(copyOfferBtn);
   phase2.appendChild(offerSection);
@@ -118,13 +118,13 @@ export function showShareDialog(sessionId: string): void {
 
   const answerLabel = document.createElement('div');
   answerLabel.className = 'share-label';
-  answerLabel.textContent = 'Paste your peer\'s response code';
+  answerLabel.textContent = '粘贴对方的响应码';
   answerSection.appendChild(answerLabel);
 
   const answerTextarea = document.createElement('textarea');
   answerTextarea.className = 'share-code';
   answerTextarea.rows = 3;
-  answerTextarea.placeholder = 'Paste response code here...';
+  answerTextarea.placeholder = '在此粘贴响应码…';
   answerSection.appendChild(answerTextarea);
   phase2.appendChild(answerSection);
 
@@ -142,24 +142,24 @@ export function showShareDialog(sessionId: string): void {
 
   const closeBtn = document.createElement('button');
   closeBtn.className = 'btn-secondary share-btn';
-  closeBtn.textContent = 'Cancel';
+  closeBtn.textContent = '取消';
   closeBtn.addEventListener('click', closeShareDialog);
 
   const backBtn = document.createElement('button');
   backBtn.className = 'btn-secondary share-btn hidden';
-  backBtn.textContent = 'Back';
+  backBtn.textContent = '上一步';
 
   const nextBtn = document.createElement('button');
   nextBtn.className = 'btn-primary share-btn';
-  nextBtn.textContent = 'Next';
+  nextBtn.textContent = '下一步';
 
   const startBtn = document.createElement('button');
   startBtn.className = 'btn-primary share-btn hidden';
-  startBtn.textContent = 'Start Sharing';
+  startBtn.textContent = '开始共享';
 
   const connectBtn = document.createElement('button');
   connectBtn.className = 'btn-primary share-btn hidden';
-  connectBtn.textContent = 'Connect';
+  connectBtn.textContent = '连接';
   connectBtn.disabled = true;
 
   actions.appendChild(closeBtn);
@@ -192,23 +192,23 @@ export function showShareDialog(sessionId: string): void {
     statusEl.textContent = '';
   });
 
-  // Enable Connect only when answer code is entered
+  // Enable 连接 only when answer code is entered
   answerTextarea.addEventListener('input', () => {
     connectBtn.disabled = !answerTextarea.value.trim();
   });
 
-  // Connect handler (registered once, guarded by disabled state)
+  // 连接 handler (registered once, guarded by disabled state)
   connectBtn.addEventListener('click', async () => {
     const answer = answerTextarea.value.trim();
     if (!answer) return;
     try {
       await acceptShareAnswer(sessionId, answer);
       connectBtn.disabled = true;
-      connectBtn.textContent = 'Connecting...';
+      connectBtn.textContent = '正在连接…';
       answerTextarea.readOnly = true;
-      statusEl.textContent = 'Establishing connection...';
+      statusEl.textContent = '正在建立连接…';
     } catch (err) {
-      statusEl.textContent = err instanceof Error ? err.message : 'Invalid response code';
+      statusEl.textContent = err instanceof Error ? err.message : '无效的响应码';
     }
   });
 
@@ -227,8 +227,8 @@ export function showShareDialog(sessionId: string): void {
     }
 
     startBtn.disabled = true;
-    startBtn.textContent = 'Generating code...';
-    statusEl.textContent = 'Generating connection code...';
+    startBtn.textContent = '正在生成连接码…';
+    statusEl.textContent = '正在生成连接码…';
 
     pendingShareSessionId = sessionId;
 
@@ -236,23 +236,23 @@ export function showShareDialog(sessionId: string): void {
       const { offer, handle } = await shareSession(sessionId, selectedMode, pin);
 
       pinInput.readOnly = true;
-      pinLabel.textContent = 'Share this PIN with your peer';
+      pinLabel.textContent = '将此 PIN 码告知对方';
       offerTextarea.value = offer;
       offerSection.classList.remove('hidden');
       answerSection.classList.remove('hidden');
       startBtn.classList.add('hidden');
       backBtn.classList.add('hidden');
       connectBtn.classList.remove('hidden');
-      statusEl.textContent = 'Waiting for peer to connect...';
+      statusEl.textContent = '等待对方连接…';
 
       handle.onConnected(() => {
         closeShareDialog();
       });
 
       handle.onAuthFailed((reason: string) => {
-        statusEl.textContent = `Authentication failed: ${reason}`;
+        statusEl.textContent = `认证失败：${reason}`;
         connectBtn.disabled = false;
-        connectBtn.textContent = 'Connect';
+        connectBtn.textContent = '连接';
         answerTextarea.value = '';
         answerTextarea.readOnly = false;
       });
@@ -261,9 +261,9 @@ export function showShareDialog(sessionId: string): void {
         endShare(pendingShareSessionId);
       }
       pendingShareSessionId = null;
-      statusEl.textContent = `Error: ${err instanceof Error ? err.message : 'Unknown error'}`;
+      statusEl.textContent = `错误：${err instanceof Error ? err.message : '未知错误'}`;
       startBtn.disabled = false;
-      startBtn.textContent = 'Start Sharing';
+      startBtn.textContent = '开始共享';
     }
   });
 }

@@ -22,29 +22,29 @@ export function initSettingsGuard(): void {
 
     let message: string;
     if (hasStatusLineIssue && hasHooksIssue) {
-      message = 'Vibeyard settings are missing from Claude Code. Cost tracking and session activity may not work.';
+      message = 'Claude Code 中缺少 Vibeyard 设置，成本统计和会话活动可能无法正常工作。';
     } else if (hasStatusLineIssue) {
       message = data.statusLine === 'foreign'
-        ? 'Another tool has overwritten Vibeyard\'s statusLine setting. Cost tracking is unavailable.'
-        : 'Cost tracking is unavailable \u2014 Vibeyard\'s statusLine setting is not configured in Claude Code.';
+        ? '其他工具覆盖了 Vibeyard 的 statusLine 设置，成本统计不可用。'
+        : '成本统计不可用——Claude Code 中未配置 Vibeyard 的 statusLine 设置。';
     } else {
-      message = 'Some session tracking hooks are missing from Claude Code settings. Activity tracking may not work.';
+      message = 'Claude Code 设置中缺少部分会话追踪钩子，活动追踪可能无法正常工作。';
     }
 
     showAlertBanner({
       icon: '\u26A0',
       message,
       cta: {
-        label: 'Fix Settings',
+        label: '修复设置',
         onClick: async (btn) => {
           btn.disabled = true;
-          btn.textContent = 'Fixing\u2026';
+          btn.textContent = '正在修复…';
           const result = await window.vibeyard.settings.reinstall();
           if (result.success) {
             removeAlertBanner();
           } else {
             btn.disabled = false;
-            btn.textContent = 'Fix Settings';
+            btn.textContent = '修复设置';
           }
         },
       },

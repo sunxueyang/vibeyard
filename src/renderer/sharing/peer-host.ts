@@ -122,7 +122,7 @@ export function startShare(sessionId: string, mode: ShareMode, passphrase: strin
 
     hostPeer.authTimeout = setTimeout(() => {
       if (hostPeer.authState !== 'verified') {
-        for (const cb of authFailedCbs) cb('Authentication timed out');
+        for (const cb of authFailedCbs) cb('认证超时');
         stopShare(sessionId);
       }
     }, AUTH_TIMEOUT);
@@ -148,8 +148,8 @@ export function startShare(sessionId: string, mode: ShareMode, passphrase: strin
           sendMessage(dc, { type: 'auth-result', ok: true });
           sendInitAndStartKeepalive();
         } else {
-          sendMessage(dc, { type: 'auth-result', ok: false, reason: 'Passphrase mismatch' });
-          for (const cb of authFailedCbs) cb('Passphrase mismatch');
+          sendMessage(dc, { type: 'auth-result', ok: false, reason: 'PIN 码不匹配' });
+          for (const cb of authFailedCbs) cb('PIN 码不匹配');
           stopShare(sessionId);
         }
       });

@@ -292,7 +292,7 @@ describe('addProject()', () => {
   it('initializes a default board so the kanban tab renders without an app restart', () => {
     const project = addProject();
     expect(project.board).toBeDefined();
-    expect(project.board!.columns.map(c => c.title)).toEqual(['Backlog', 'Ready', 'Running', 'Done']);
+    expect(project.board!.columns.map(c => c.title)).toEqual(['待办', '就绪', '运行中', '完成']);
     expect(project.board!.tasks).toEqual([]);
   });
 });

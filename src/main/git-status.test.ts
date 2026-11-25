@@ -13,14 +13,20 @@ vi.mock('fs', () => ({
   },
 }));
 
+vi.mock('./fs-utils', () => ({
+  isLikelyBinaryFile: vi.fn(() => false),
+}));
+
 import { execFile } from 'child_process';
 import { readFileSync, promises as fsPromises } from 'fs';
 import * as path from 'path';
+import { isLikelyBinaryFile } from './fs-utils';
 import { getGitStatus, getGitFiles, getGitDiff, getGitWorktrees, gitDiscardFile } from './git-status';
 
 const mockExecFile = vi.mocked(execFile);
 const mockReadFileSync = vi.mocked(readFileSync);
 const mockRm = vi.mocked(fsPromises.rm);
+const mockIsLikelyBinary = vi.mocked(isLikelyBinaryFile);
 
 function simulateExecFile(err: ExecFileException | null, stdout: string) {
   mockExecFile.mockImplementationOnce((_cmd, _args, _opts, callback) => {
@@ -175,6 +181,13 @@ describe('getGitDiff', () => {
     expect(diff).toContain('+line2');
   });
 
+  it('returns a placeholder instead of garbled content for binary untracked files', async () => {
+    mockIsLikelyBinary.mockReturnValueOnce(true);
+    const diff = await getGitDiff('/test', 'image.png', 'untracked');
+    expect(diff).toBe('Binary file "image.png" not shown (binary content).');
+    expect(mockReadFileSync).not.toHaveBeenCalled();
+  });
+
   it('returns error message when untracked file cannot be read', async () => {
     mockReadFileSync.mockImplementationOnce(() => { throw new Error('ENOENT'); });
     const diff = await getGitDiff('/test', 'missing.ts', 'untracked');
@@ -187,7 +200,7 @@ describe('getGitDiff', () => {
 
     expect(mockExecFile).toHaveBeenCalledWith(
       'git',
-      ['diff', '--cached', '--', 'file.ts'],
+      ['-c', 'core.quotepath=false', 'diff', '--cached', '--', 'file.ts'],
       expect.any(Object),
       expect.any(Function),
     );
@@ -199,7 +212,7 @@ describe('getGitDiff', () => {
 
     expect(mockExecFile).toHaveBeenCalledWith(
       'git',
-      ['diff', '--', 'file.ts'],
+      ['-c', 'core.quotepath=false', 'diff', '--', 'file.ts'],
       expect.any(Object),
       expect.any(Function),
     );

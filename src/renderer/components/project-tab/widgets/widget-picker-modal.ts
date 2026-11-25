@@ -4,7 +4,7 @@ import { listWidgetTypes } from './widget-registry.js';
 import type { OverviewWidget, OverviewWidgetType } from '../../../../shared/types.js';
 
 export function showWidgetPicker(existing: OverviewWidget[], onPick: (type: OverviewWidgetType) => void): void {
-  const shell = createModalShell({ id: 'widget-picker-modal', title: 'Add Widget', wide: true });
+  const shell = createModalShell({ id: 'widget-picker-modal', title: '添加组件', wide: true });
   shell.body.innerHTML = '';
   shell.actions.innerHTML = '';
 
@@ -40,7 +40,7 @@ export function showWidgetPicker(existing: OverviewWidget[], onPick: (type: Over
     if (isAdded) {
       const badge = document.createElement('span');
       badge.className = 'widget-picker-added-badge';
-      badge.textContent = meta.allowMultiple ? `Added · ${count}` : 'Added';
+      badge.textContent = meta.allowMultiple ? `已添加 · ${count}` : '已添加';
       header.appendChild(badge);
     }
     card.appendChild(header);
@@ -62,7 +62,7 @@ export function showWidgetPicker(existing: OverviewWidget[], onPick: (type: Over
     grid.appendChild(card);
   }
 
-  const cancel = createModalButton('Close', false);
+  const cancel = createModalButton('关闭', false);
   cancel.addEventListener('click', close);
   shell.actions.appendChild(cancel);
 

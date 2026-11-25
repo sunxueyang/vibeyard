@@ -1,0 +1,48 @@
+name: macOS Build
+
+# 自用 macOS 打包：免签名、免公证、无需任何 secret。
+# 推送到 main 或手动触发后，在 macOS 云端构建 .dmg，并作为 Artifact 提供下载。
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+      - '.github/workflows/**'
+
+jobs:
+  build-dmg:
+    name: Build ${{ matrix.arch }} dmg
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Apple Silicon (M 系列) 用 arm64；Intel 芯片用 x64。
+        arch: [arm64, x64]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build TypeScript and renderer bundle
+        run: npm run build
+
+      - name: Package unsigned .dmg
+        run: npx electron-builder --mac dmg --${{ matrix.arch }}
+        env:
+          # 关闭代码签名；未签名时 electron-builder 自动跳过公证（notarize）。
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+
+      - name: Upload .dmg artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vibeyard-macos-${{ matrix.arch }}
+          path: dist/*.dmg
+          retention-days: 90

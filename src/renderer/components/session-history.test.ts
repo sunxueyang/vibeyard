@@ -245,7 +245,7 @@ describe('renderSessionHistory', () => {
     mockAppState.activeProject.sessionHistory = [];
     const container = await renderHistory();
     const empty = container.querySelector('.history-empty');
-    expect(empty?.textContent).toBe('No session history yet');
+    expect(empty?.textContent).toBe('暂无会话历史');
   });
 
   it('renders search, bookmark filter, and clear buttons', async () => {
@@ -276,7 +276,7 @@ describe('renderSessionHistory', () => {
     item!.dispatch('contextmenu', { preventDefault() {}, stopPropagation() {}, clientX: 10, clientY: 10 });
 
     const removeItem = doc.body.querySelector('.danger');
-    expect(removeItem?.textContent).toBe('Remove from history');
+    expect(removeItem?.textContent).toBe('从历史记录中移除');
 
     removeItem!.dispatch('click', { stopPropagation() {} });
     expect(mockAppState.removeHistoryEntry).toHaveBeenCalledWith('p1', 'h1');

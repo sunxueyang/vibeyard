@@ -22,14 +22,14 @@ export async function decodeConnectionCode(code: string, expectedType: 'offer' |
   try {
     decoded = await decryptPayload(code, passphrase);
   } catch {
-    throw new Error('Invalid connection code: could not decrypt (wrong passphrase?)');
+    throw new Error('连接码无效：无法解密（PIN 码错误？）');
   }
 
   let parsed: unknown;
   try {
     parsed = JSON.parse(decoded);
   } catch {
-    throw new Error('Invalid connection code: malformed data');
+    throw new Error('连接码无效：数据格式错误');
   }
 
   if (
@@ -40,16 +40,16 @@ export async function decodeConnectionCode(code: string, expectedType: 'offer' |
     typeof (parsed as Record<string, unknown>).type !== 'string' ||
     typeof (parsed as Record<string, unknown>).sdp !== 'string'
   ) {
-    throw new Error('Invalid connection code: missing required fields');
+    throw new Error('连接码无效：缺少必要字段');
   }
 
   const desc = parsed as RTCSessionDescriptionInit;
   if (desc.type !== 'offer' && desc.type !== 'answer') {
-    throw new Error('Invalid connection code: unexpected type');
+    throw new Error('连接码无效：类型异常');
   }
 
   if (expectedType && desc.type !== expectedType) {
-    throw new Error(`Invalid connection code: expected ${expectedType} but got ${desc.type}`);
+    throw new Error(`连接码无效：期望类型为 ${expectedType}，实际为 ${desc.type}`);
   }
 
   return desc;

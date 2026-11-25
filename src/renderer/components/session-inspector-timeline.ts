@@ -92,7 +92,7 @@ export function buildAgentModel(events: InspectorEvent[], startIdx: number): Age
 export function renderTimeline(container: HTMLElement): void {
   const events = getEvents(inspectorState.inspectedSessionId!);
   if (events.length === 0) {
-    container.innerHTML = `<div class="inspector-empty">${emptyMessage('No events yet')}</div>`;
+    container.innerHTML = `<div class="inspector-empty">${emptyMessage('暂无事件')}</div>`;
     return;
   }
 
@@ -109,7 +109,7 @@ export function renderTimeline(container: HTMLElement): void {
   if (startIdx > 0) {
     const loadMore = document.createElement('div');
     loadMore.className = 'inspector-load-more';
-    loadMore.textContent = `${startIdx} earlier events not shown`;
+    loadMore.textContent = `${startIdx} 个更早的事件未显示`;
     list.appendChild(loadMore);
   }
 
@@ -187,7 +187,7 @@ export function renderTimeline(container: HTMLElement): void {
     desc.className = 'inspector-desc';
     const parts = [agentLabel(startEv)];
     parts.push(formatDuration(duration));
-    if (childCount > 0) parts.push(`${childCount} action${childCount !== 1 ? 's' : ''}`);
+    if (childCount > 0) parts.push(`${childCount} 个操作`);
     desc.textContent = parts.join(' \u00B7 ');
 
     row.appendChild(timeEl);
@@ -270,61 +270,61 @@ export function renderTimeline(container: HTMLElement): void {
     } else if (ev.type === 'user_prompt') {
       desc.textContent = ev.prompt
         ? ev.prompt.replace(/\s+/g, ' ').slice(0, 120)
-        : 'User prompt submitted';
+        : '用户已提交提示';
     } else if (ev.type === 'stop') {
-      desc.textContent = 'Response completed';
+      desc.textContent = '响应完成';
     } else if (ev.type === 'stop_failure') {
-      desc.textContent = ev.error || ev.error_details || 'Response stopped with error';
+      desc.textContent = ev.error || ev.error_details || '响应因错误停止';
     } else if (ev.type === 'session_start') {
-      desc.textContent = 'Session started';
+      desc.textContent = '会话已开始';
     } else if (ev.type === 'session_end') {
-      desc.textContent = ev.reason ? `Session ended: ${ev.reason}` : 'Session ended';
+      desc.textContent = ev.reason ? `会话已结束：${ev.reason}` : '会话已结束';
     } else if (ev.type === 'permission_request') {
-      desc.textContent = 'Waiting for permission';
+      desc.textContent = '等待授权';
     } else if (ev.type === 'subagent_start') {
       // Unmatched start (agent still running) — render inline
-      desc.textContent = `Agent started: ${agentLabel(ev)}`;
+      desc.textContent = `Agent 已启动：${agentLabel(ev)}`;
     } else if (ev.type === 'subagent_stop') {
       const duration = findAgentDuration(events, i);
       desc.textContent = duration
-        ? `Agent stopped: ${agentLabel(ev)} (${formatDuration(duration)})`
-        : `Agent stopped: ${agentLabel(ev)}`;
+        ? `Agent 已停止：${agentLabel(ev)} (${formatDuration(duration)})`
+        : `Agent 已停止：${agentLabel(ev)}`;
     } else if (ev.type === 'notification') {
       desc.textContent = ev.title
         ? `${ev.title}: ${ev.message ?? ''}`.trim()
-        : ev.message || ev.notification_type || 'Notification';
+        : ev.message || ev.notification_type || '通知';
     } else if (ev.type === 'pre_compact') {
-      desc.textContent = 'Context compaction starting';
+      desc.textContent = '开始压缩上下文';
     } else if (ev.type === 'post_compact') {
-      desc.textContent = 'Context compaction complete';
+      desc.textContent = '上下文压缩完成';
     } else if (ev.type === 'task_created') {
       const label = ev.task_subject || ev.task_id;
-      desc.textContent = label ? `Task created: ${label}` : 'Task created';
+      desc.textContent = label ? `任务已创建：${label}` : '任务已创建';
     } else if (ev.type === 'task_completed') {
       const label = ev.task_subject || ev.task_id;
-      desc.textContent = label ? `Task completed: ${label}` : 'Task completed';
+      desc.textContent = label ? `任务已完成：${label}` : '任务已完成';
     } else if (ev.type === 'worktree_create') {
-      desc.textContent = ev.worktree_path || 'Worktree created';
+      desc.textContent = ev.worktree_path || '工作树已创建';
     } else if (ev.type === 'worktree_remove') {
-      desc.textContent = ev.worktree_path || 'Worktree removed';
+      desc.textContent = ev.worktree_path || '工作树已移除';
     } else if (ev.type === 'cwd_changed') {
       // `new_cwd`, not the common `cwd` field — that one is the directory the
       // hook ran in, i.e. the value *before* the change.
-      desc.textContent = ev.new_cwd || 'Working directory changed';
+      desc.textContent = ev.new_cwd || '工作目录已更改';
     } else if (ev.type === 'file_changed') {
       const p = ev.file_path;
-      desc.textContent = p ? (ev.event ? `${ev.event}: ${p}` : p) : 'File changed';
+      desc.textContent = p ? (ev.event ? `${ev.event}: ${p}` : p) : '文件已更改';
     } else if (ev.type === 'config_change') {
-      desc.textContent = ev.file_path ? `Config: ${ev.file_path}` : 'Config changed';
+      desc.textContent = ev.file_path ? `配置：${ev.file_path}` : '配置已更改';
     } else if (ev.type === 'elicitation') {
-      desc.textContent = ev.message || ev.mcp_server_name || 'Elicitation requested';
+      desc.textContent = ev.message || ev.mcp_server_name || '已请求信息补充';
     } else if (ev.type === 'elicitation_result') {
-      desc.textContent = ev.action ? `Elicitation ${ev.action}` : 'Elicitation answered';
+      desc.textContent = ev.action ? `信息补充 ${ev.action}` : '信息补充已答复';
     } else if (ev.type === 'instructions_loaded') {
-      desc.textContent = ev.file_path || 'Instructions loaded';
+      desc.textContent = ev.file_path || '指令已加载';
     } else if (ev.type === 'teammate_idle') {
       // TeammateIdle carries no agent_id/agent_type, so agentLabel never resolves.
-      desc.textContent = `Teammate idle: ${ev.teammate_name || agentLabel(ev)}`;
+      desc.textContent = `队友空闲：${ev.teammate_name || agentLabel(ev)}`;
     }
 
     // Duration. Prefer the tool's own reported execution time when the hook

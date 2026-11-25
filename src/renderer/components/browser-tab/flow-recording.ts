@@ -51,7 +51,7 @@ export function renderFlowSteps(instance: BrowserTabInstance): void {
     const removeBtn = document.createElement('button');
     removeBtn.className = 'flow-step-remove';
     removeBtn.textContent = '\u00D7';
-    removeBtn.title = 'Remove step';
+    removeBtn.title = '移除步骤';
     removeBtn.addEventListener('click', () => {
       instance.flowSteps.splice(i, 1);
       renderFlowSteps(instance);
@@ -67,7 +67,7 @@ export function renderFlowSteps(instance: BrowserTabInstance): void {
   instance.flowPanel.style.display = (instance.flowMode || hasSteps) ? 'flex' : 'none';
   instance.flowInputRow.style.display = hasSteps ? 'flex' : 'none';
   instance.flowPlanModeRow.style.display = hasSteps ? 'flex' : 'none';
-  instance.flowPanelLabel.textContent = `Flow (${instance.flowSteps.length} steps)`;
+  instance.flowPanelLabel.textContent = `流程（${instance.flowSteps.length} 个步骤）`;
 }
 
 export function addFlowStep(instance: BrowserTabInstance, step: FlowStep): void {
@@ -78,7 +78,7 @@ export function addFlowStep(instance: BrowserTabInstance, step: FlowStep): void 
 export function toggleFlowMode(instance: BrowserTabInstance): void {
   instance.flowMode = !instance.flowMode;
   instance.recordBtn.classList.toggle('active', instance.flowMode);
-  instance.recordBtn.textContent = instance.flowMode ? '\u25A0 Stop' : '\u25CF Record';
+  instance.recordBtn.textContent = instance.flowMode ? '■ 停止' : '● 录制';
 
   instance.inspectBtn.disabled = instance.flowMode;
   instance.drawBtn.disabled = instance.flowMode;

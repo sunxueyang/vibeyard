@@ -11,21 +11,21 @@ export async function showChromeImportModal(onClosed?: () => void): Promise<void
 
   const { overlay, body, actions, titleEl } = createModalShell({
     id: 'chrome-import-overlay',
-    title: 'Import cookies from Chrome',
+    title: '从 Chrome 导入 Cookie',
   });
   body.innerHTML = '';
   actions.innerHTML = '';
-  titleEl.textContent = 'Import cookies from Chrome';
+  titleEl.textContent = '从 Chrome 导入 Cookie';
 
   const intro = document.createElement('div');
   intro.className = 'chrome-import-intro';
   intro.textContent =
-    'Import all cookies from your installed Chrome profile so the embedded browser starts already logged in to the sites you use.';
+    '从已安装的 Chrome 配置文件导入所有 Cookie，这样内置浏览器启动时即已登录你常用的网站。';
   body.appendChild(intro);
 
   const profileLabel = document.createElement('div');
   profileLabel.className = 'chrome-import-label';
-  profileLabel.textContent = 'Chrome profile';
+  profileLabel.textContent = 'Chrome 配置文件';
   body.appendChild(profileLabel);
 
   const profileSlot = document.createElement('div');
@@ -47,12 +47,12 @@ export async function showChromeImportModal(onClosed?: () => void): Promise<void
 
   const cookiesBar = document.createElement('div');
   cookiesBar.className = 'chrome-import-bar';
-  cookiesBar.innerHTML = '<span class="chrome-import-bar-label">Cookies</span><span class="chrome-import-bar-counts">0 / 0</span><div class="chrome-import-bar-track"><div class="chrome-import-bar-fill"></div></div>';
+  cookiesBar.innerHTML = '<span class="chrome-import-bar-label">Cookie</span><span class="chrome-import-bar-counts">0 / 0</span><div class="chrome-import-bar-track"><div class="chrome-import-bar-fill"></div></div>';
   cookiesBar.style.display = 'none';
   progressBox.appendChild(cookiesBar);
 
-  const cancelBtn = createModalButton('Cancel', false);
-  const importBtn = createModalButton('Import', true);
+  const cancelBtn = createModalButton('取消', false);
+  const importBtn = createModalButton('导入', true);
   actions.appendChild(cancelBtn);
   actions.appendChild(importBtn);
 
@@ -61,11 +61,11 @@ export async function showChromeImportModal(onClosed?: () => void): Promise<void
   try {
     profiles = await window.vibeyard.chromeImport.listProfiles();
   } catch (err) {
-    note.textContent = `Failed to read Chrome profiles: ${(err as Error).message}`;
+    note.textContent = `读取 Chrome 配置文件失败：${(err as Error).message}`;
   }
 
   if (profiles.length === 0) {
-    note.textContent = 'Chrome installation not found. Install Google Chrome and sign in to a profile, then try again.';
+    note.textContent = '未找到 Chrome 安装。请安装 Google Chrome 并登录某个配置文件，然后重试。';
     importBtn.disabled = true;
   } else {
     const select = createCustomSelect(
@@ -76,8 +76,8 @@ export async function showChromeImportModal(onClosed?: () => void): Promise<void
     profileSlot.appendChild(select.element);
 
     note.innerHTML =
-      'On macOS, the system may ask permission to read <strong>Chrome Safe Storage</strong> — click <em>Allow</em> when prompted. ' +
-      'On Windows, cookies encrypted with Chrome 127+ App-Bound Encryption can’t be imported and will be skipped.';
+      '在 macOS 上，系统可能会请求读取 <strong>Chrome Safe Storage</strong> 的权限——出现提示时请点击<em>允许</em>。' +
+      '在 Windows 上，使用 Chrome 127+ 应用绑定加密（App-Bound Encryption）的 Cookie 无法导入，将被跳过。';
 
     importBtn.addEventListener('click', async () => {
       importBtn.disabled = true;
@@ -85,20 +85,20 @@ export async function showChromeImportModal(onClosed?: () => void): Promise<void
 
       progressBox.style.display = 'block';
       cookiesBar.style.display = 'flex';
-      statusLine.textContent = 'Starting…';
+      statusLine.textContent = '正在启动…';
 
       const unsub = window.vibeyard.chromeImport.onProgress((p: ChromeImportProgress) => {
-        if (p.stage === 'starting') statusLine.textContent = 'Reading Chrome data…';
-        else if (p.stage === 'copy') statusLine.textContent = 'Copying database files…';
+        if (p.stage === 'starting') statusLine.textContent = '正在读取 Chrome 数据…';
+        else if (p.stage === 'copy') statusLine.textContent = '正在复制数据库文件…';
         else if (p.stage === 'cookies') {
           const total = p.total ?? 0;
           const done = p.done ?? 0;
           updateBar(cookiesBar, done, total);
-          statusLine.textContent = `Importing cookies… ${done}/${total}`;
+          statusLine.textContent = `正在导入 Cookie… ${done}/${total}`;
         } else if (p.stage === 'done') {
-          statusLine.textContent = 'Done.';
+          statusLine.textContent = '完成。';
         } else if (p.stage === 'error') {
-          statusLine.textContent = `Error: ${p.message || 'Unknown error'}`;
+          statusLine.textContent = `错误：${p.message || '未知错误'}`;
         }
       });
 
@@ -109,9 +109,9 @@ export async function showChromeImportModal(onClosed?: () => void): Promise<void
         });
       } catch (err) {
         unsub();
-        statusLine.textContent = `Failed: ${(err as Error).message}`;
+        statusLine.textContent = `失败：${(err as Error).message}`;
         cancelBtn.disabled = false;
-        cancelBtn.textContent = 'Close';
+        cancelBtn.textContent = '关闭';
         return;
       }
       unsub();
@@ -120,15 +120,15 @@ export async function showChromeImportModal(onClosed?: () => void): Promise<void
       progressBox.innerHTML = '';
       const summary = document.createElement('div');
       summary.className = 'chrome-import-summary';
-      const lines: string[] = [`Imported ${result.cookieCount} cookies`];
-      if (result.skippedV11 > 0) lines.push(`Skipped ${result.skippedV11} entries (Chrome v11 App-Bound Encryption)`);
-      if (result.errors.length > 0) lines.push(`${result.errors.length} errors`);
+      const lines: string[] = [`已导入 ${result.cookieCount} 个 Cookie`];
+      if (result.skippedV11 > 0) lines.push(`已跳过 ${result.skippedV11} 项（Chrome v11 应用绑定加密）`);
+      if (result.errors.length > 0) lines.push(`${result.errors.length} 个错误`);
       summary.textContent = lines.join(' · ');
       progressBox.appendChild(summary);
 
       importBtn.style.display = 'none';
       cancelBtn.disabled = false;
-      cancelBtn.textContent = 'Done';
+      cancelBtn.textContent = '完成';
     });
   }
 

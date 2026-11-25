@@ -3,7 +3,7 @@
 
 export class DecryptionError extends Error {
   constructor() {
-    super('Invalid PIN or corrupted code');
+    super('PIN 码无效或数据已损坏');
     this.name = 'DecryptionError';
   }
 }
@@ -16,9 +16,9 @@ const MIN_PIN_LENGTH = 4;
 const MAX_PIN_LENGTH = 8;
 
 export function validatePin(pin: string): string | null {
-  if (!/^\d+$/.test(pin)) return 'PIN must contain only digits';
-  if (pin.length < MIN_PIN_LENGTH) return `PIN must be at least ${MIN_PIN_LENGTH} digits`;
-  if (pin.length > MAX_PIN_LENGTH) return `PIN must be at most ${MAX_PIN_LENGTH} digits`;
+  if (!/^\d+$/.test(pin)) return 'PIN 码只能包含数字';
+  if (pin.length < MIN_PIN_LENGTH) return `PIN 码至少为 ${MIN_PIN_LENGTH} 位数字`;
+  if (pin.length > MAX_PIN_LENGTH) return `PIN 码最多为 ${MAX_PIN_LENGTH} 位数字`;
   return null;
 }
 

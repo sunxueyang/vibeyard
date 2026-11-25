@@ -19,6 +19,10 @@ vi.mock('node-pty', () => ({
 vi.mock('child_process', () => ({
   execSync: vi.fn(() => { throw new Error('not found'); }),
   execFile: mockExecFile,
+  exec: vi.fn((...args: unknown[]) => {
+    const cb = args[args.length - 1] as (err: Error, stdout: string) => void;
+    cb(new Error('not found'), '');
+  }),
 }));
 
 vi.mock('os', () => ({

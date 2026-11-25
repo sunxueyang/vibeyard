@@ -13,7 +13,7 @@ function showStarPromptDialog(): void {
 
   const { overlay, body, actions } = createModalShell({
     id: 'star-prompt-overlay',
-    title: 'Enjoying Vibeyard?',
+    title: '喜欢 Vibeyard 吗？',
   });
   body.innerHTML = '';
   actions.innerHTML = '';
@@ -29,7 +29,7 @@ function showStarPromptDialog(): void {
   const message = document.createElement('div');
   message.className = 'star-prompt-message';
   message.textContent =
-    "If Vibeyard has been useful to you, consider giving it a star on GitHub. It helps others discover the project!";
+    '如果 Vibeyard 对你有帮助，欢迎在 GitHub 上给它点个 Star，帮助更多人发现这个项目！';
   container.appendChild(message);
 
   const innerActions = document.createElement('div');
@@ -37,19 +37,19 @@ function showStarPromptDialog(): void {
 
   const starBtn = document.createElement('button');
   starBtn.className = 'btn-primary';
-  starBtn.textContent = 'Star on GitHub';
+  starBtn.textContent = '在 GitHub 上点 Star';
   innerActions.appendChild(starBtn);
 
   const laterBtn = document.createElement('button');
   laterBtn.className = 'btn-secondary';
-  laterBtn.textContent = 'Maybe Later';
+  laterBtn.textContent = '以后再说';
   innerActions.appendChild(laterBtn);
 
   container.appendChild(innerActions);
 
   const dontAsk = document.createElement('button');
   dontAsk.className = 'star-prompt-dont-ask';
-  dontAsk.textContent = "Don't ask again";
+  dontAsk.textContent = '不再询问';
   container.appendChild(dontAsk);
 
   body.appendChild(container);

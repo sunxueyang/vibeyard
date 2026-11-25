@@ -5,7 +5,7 @@ export function esc(s: string): string {
   return el.innerHTML;
 }
 
-const AREA_LABELS: Record<string, string> = { staged: 'Staged', working: 'Changes', untracked: 'Untracked', conflicted: 'Conflicted' };
+const AREA_LABELS: Record<string, string> = { staged: '已暂存', working: '更改', untracked: '未跟踪', conflicted: '冲突' };
 
 /** Return a user-friendly label for a git area value. */
 export function areaLabel(area: string): string {
@@ -20,7 +20,7 @@ export function scoreColor(score: number): string {
 }
 
 /** Create a labeled checkbox row using the `inspect-attach-dims-row` class. */
-export function createPlanModeRow(labelText: string = 'Plan mode', checked = true): { row: HTMLLabelElement; checkbox: HTMLInputElement } {
+export function createPlanModeRow(labelText: string = '计划模式', checked = true): { row: HTMLLabelElement; checkbox: HTMLInputElement } {
   const row = document.createElement('label');
   row.className = 'inspect-attach-dims-row';
   const checkbox = document.createElement('input');

@@ -6,16 +6,16 @@ import { GITHUB_MAX_PER_PAGE } from '../../../../shared/constants.js';
 import type { GithubConfig } from './github-types.js';
 
 const STATE_OPTIONS = [
-  { value: 'open', label: 'Open' },
-  { value: 'closed', label: 'Closed' },
-  { value: 'all', label: 'All' },
+  { value: 'open', label: '打开' },
+  { value: 'closed', label: '关闭' },
+  { value: 'all', label: '全部' },
 ];
 
 const REFRESH_OPTIONS = [
-  { value: '60', label: '1 minute' },
-  { value: '300', label: '5 minutes' },
-  { value: '900', label: '15 minutes' },
-  { value: '1800', label: '30 minutes' },
+  { value: '60', label: '1 分钟' },
+  { value: '300', label: '5 分钟' },
+  { value: '900', label: '15 分钟' },
+  { value: '1800', label: '30 分钟' },
 ];
 
 export function showGithubSettings(
@@ -23,7 +23,7 @@ export function showGithubSettings(
   onSave: (patch: Partial<GithubConfig>) => void,
 ): void {
   const isPRs = widget.type === 'github-prs';
-  const title = isPRs ? 'Recent PRs Settings' : 'Recent Issues Settings';
+  const title = isPRs ? '最近 PR 设置' : '最近 Issue 设置';
   const shell = createModalShell({ id: 'github-settings-modal', title });
   shell.body.innerHTML = '';
   shell.actions.innerHTML = '';
@@ -43,20 +43,20 @@ export function showGithubSettings(
   const repoField = document.createElement('div');
   repoField.className = 'widget-settings-field';
   const repoLabel = document.createElement('label');
-  repoLabel.textContent = 'Repository (owner/name)';
+  repoLabel.textContent = '仓库（owner/name）';
   repoLabel.htmlFor = 'github-settings-repo';
   repoField.appendChild(repoLabel);
 
   const repoInput = document.createElement('input');
   repoInput.type = 'text';
   repoInput.id = 'github-settings-repo';
-  repoInput.placeholder = 'auto-detect from git remote';
+  repoInput.placeholder = '从 git 远程自动检测';
   repoInput.value = current.repo ?? '';
   repoField.appendChild(repoInput);
 
   const repoHelp = document.createElement('div');
   repoHelp.className = 'widget-settings-help';
-  repoHelp.textContent = 'Leave blank to use the project’s git origin.';
+  repoHelp.textContent = '留空则使用项目的 git origin。';
   repoField.appendChild(repoHelp);
 
   form.appendChild(repoField);
@@ -65,7 +65,7 @@ export function showGithubSettings(
   const stateField = document.createElement('div');
   stateField.className = 'widget-settings-field';
   const stateLabel = document.createElement('label');
-  stateLabel.textContent = 'State';
+  stateLabel.textContent = '状态';
   stateField.appendChild(stateLabel);
   const stateSelect = createCustomSelect(
     `github-settings-state-${widget.id}`,
@@ -79,7 +79,7 @@ export function showGithubSettings(
   const maxField = document.createElement('div');
   maxField.className = 'widget-settings-field';
   const maxLabel = document.createElement('label');
-  maxLabel.textContent = `Max ${isPRs ? 'PRs' : 'issues'}`;
+  maxLabel.textContent = `最多${isPRs ? 'PR' : 'Issue'}数量`;
   maxLabel.htmlFor = 'github-settings-max';
   maxField.appendChild(maxLabel);
   const maxInput = document.createElement('input');
@@ -95,7 +95,7 @@ export function showGithubSettings(
   const refreshField = document.createElement('div');
   refreshField.className = 'widget-settings-field';
   const refreshLabel = document.createElement('label');
-  refreshLabel.textContent = 'Auto refresh';
+  refreshLabel.textContent = '自动刷新';
   refreshField.appendChild(refreshLabel);
   const refreshSelect = createCustomSelect(
     `github-settings-refresh-${widget.id}`,
@@ -107,11 +107,11 @@ export function showGithubSettings(
 
   shell.body.appendChild(form);
 
-  const cancel = createModalButton('Cancel', false);
+  const cancel = createModalButton('取消', false);
   cancel.addEventListener('click', close);
   shell.actions.appendChild(cancel);
 
-  const save = createModalButton('Save', true);
+  const save = createModalButton('保存', true);
   save.addEventListener('click', () => {
     const repoRaw = repoInput.value.trim();
     const maxRaw = parseInt(maxInput.value, 10);

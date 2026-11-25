@@ -19,8 +19,8 @@ export const createKanbanWidget: WidgetFactory = (host) => {
 
   const openTabBtn = document.createElement('button');
   openTabBtn.className = 'widget-kanban-add-btn';
-  openTabBtn.textContent = 'Open Kanban tab';
-  openTabBtn.title = 'Open the full Kanban tab';
+  openTabBtn.textContent = '打开看板标签页';
+  openTabBtn.title = '打开完整看板标签页';
   openTabBtn.addEventListener('click', () => {
     appState.openKanbanTab(host.projectId);
   });
@@ -28,8 +28,8 @@ export const createKanbanWidget: WidgetFactory = (host) => {
 
   const addBtn = document.createElement('button');
   addBtn.className = 'widget-kanban-add-btn';
-  addBtn.textContent = '+ Task';
-  addBtn.title = 'Add a new task';
+  addBtn.textContent = '+ 任务';
+  addBtn.title = '添加新任务';
   addBtn.addEventListener('click', () => showTaskModal('create'));
   toolbar.appendChild(addBtn);
 
@@ -57,15 +57,15 @@ export const createKanbanWidget: WidgetFactory = (host) => {
 
     if (!board || board.columns.length === 0) {
       countLabel.textContent = '';
-      renderEmpty('No board yet.');
+      renderEmpty('暂无看板。');
       return;
     }
 
     const totalTasks = board.tasks.length;
-    countLabel.textContent = totalTasks === 1 ? '1 task' : `${totalTasks} tasks`;
+    countLabel.textContent = `${totalTasks} 个任务`;
 
     if (totalTasks === 0) {
-      renderEmpty('No tasks yet.');
+      renderEmpty('暂无任务。');
       return;
     }
 
@@ -80,7 +80,7 @@ export const createKanbanWidget: WidgetFactory = (host) => {
   }
 
   function renderEmpty(label: string): void {
-    body.appendChild(createWidgetEmpty(label, 'Add a task', () => showTaskModal('create')));
+    body.appendChild(createWidgetEmpty(label, '添加任务', () => showTaskModal('create')));
   }
 
   // Live cost/context/status updates would mean a full re-render on every PTY

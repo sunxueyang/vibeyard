@@ -141,6 +141,29 @@
   font-style: italic;
 }
 
+/* Date grouping headers */
+.history-group-header {
+  position: sticky;
+  top: 0;
+  padding: 5px 8px 3px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+  background: var(--bg-secondary);
+  z-index: 1;
+}
+
+/* Live vs archived rows: a thin accent rail marks the running sessions. */
+.history-item-active {
+  border-left: 2px solid var(--accent);
+}
+
+.history-item-archived {
+  border-left: 2px solid transparent;
+}
+
 /* Sidebar panel size overrides — scoped to .project-panel-history so the
    full-screen session-search dialog keeps its own sizing. */
 .project-panel-history .history-search {

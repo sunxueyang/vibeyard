@@ -103,7 +103,7 @@ export async function joinRemoteSession(projectId: string, offer: string, passph
 
     const session = appState.addRemoteSession(projectId, localSessionId, initData.sessionName, initData.mode);
     if (!session) {
-      console.error('Failed to create remote session');
+      console.error('创建远程会话失败');
       destroyRemoteTerminal(localSessionId);
       guestHandles.delete(localSessionId);
       handle.disconnect();

@@ -22,7 +22,7 @@ export const createFavoriteSessionsWidget: WidgetFactory = (host) => {
     if (favorites.length === 0) {
       const empty = document.createElement('div');
       empty.className = 'widget-sessions-recent-empty';
-      empty.textContent = 'No favorite sessions yet.';
+      empty.textContent = '暂无收藏的会话。';
       body.appendChild(empty);
       return;
     }
@@ -38,12 +38,12 @@ export const createFavoriteSessionsWidget: WidgetFactory = (host) => {
   function buildRow(archived: ArchivedSession): HTMLElement {
     const row = document.createElement('div');
     row.className = 'widget-sessions-row widget-sessions-row-recent';
-    row.title = archived.cliSessionId ? 'Click to resume' : 'No CLI session id — cannot resume';
+    row.title = archived.cliSessionId ? '点击恢复' : '无 CLI 会话 ID，无法恢复';
 
     const bookmark = document.createElement('span');
     bookmark.className = 'widget-sessions-bookmark';
     bookmark.textContent = '★';
-    bookmark.title = 'Bookmarked';
+    bookmark.title = '已收藏';
     row.appendChild(bookmark);
 
     const main = document.createElement('div');
@@ -81,7 +81,7 @@ export const createFavoriteSessionsWidget: WidgetFactory = (host) => {
     const removeBtn = document.createElement('button');
     removeBtn.className = 'widget-sessions-remove-btn';
     removeBtn.innerHTML = '&times;';
-    removeBtn.title = 'Remove from favorites';
+    removeBtn.title = '从收藏中移除';
     removeBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       appState.toggleBookmark(host.projectId, archived.id);
@@ -119,11 +119,11 @@ function formatRelativeDate(iso: string): string {
   if (Number.isNaN(then)) return '';
   const diffMs = Date.now() - then;
   const min = Math.floor(diffMs / 60_000);
-  if (min < 1) return 'just now';
-  if (min < 60) return `${min}m ago`;
+  if (min < 1) return '刚刚';
+  if (min < 60) return `${min} 分钟前`;
   const hr = Math.floor(min / 60);
-  if (hr < 24) return `${hr}h ago`;
+  if (hr < 24) return `${hr} 小时前`;
   const day = Math.floor(hr / 24);
-  if (day < 7) return `${day}d ago`;
+  if (day < 7) return `${day} 天前`;
   return new Date(iso).toLocaleDateString();
 }

@@ -26,6 +26,8 @@
   display: grid;
   gap: 2px;
   overflow: hidden;
+  min-width: 0;
+  min-height: 0;
 }
 
 .swarm-empty-cell {
@@ -36,6 +38,8 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  min-width: 0;
+  min-height: 0;
 }
 
 .swarm-empty-add-btn {
@@ -84,6 +88,10 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  /* Grid items default to min-width/min-height: auto, which keeps them from
+     shrinking below their content and leaves blank overflow on resize. */
+  min-width: 0;
+  min-height: 0;
 }
 
 .terminal-pane.split {
@@ -108,6 +116,16 @@
 .terminal-pane .xterm {
   height: 100%;
   padding: 4px;
+}
+
+/* xterm 6 keeps the legacy absolutely-positioned .xterm-viewport as the base
+   layer, but its bundled CSS hardcodes background-color:#000 while the theme
+   background is only applied to the content layer (.xterm-scrollable-element).
+   With 4px padding and a height that isn't a whole number of rows, the content
+   layer doesn't cover the full box, so the black viewport leaks along the
+   bottom. Repaint it with the theme background so the two layers match. */
+.terminal-pane .xterm .xterm-viewport {
+  background-color: var(--bg-primary);
 }
 
 .terminal-pane.hidden {

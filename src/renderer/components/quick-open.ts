@@ -37,7 +37,7 @@ function createOverlay(): void {
   input = document.createElement('input');
   input.className = 'quick-open-input';
   input.type = 'text';
-  input.placeholder = 'Search files by name...';
+  input.placeholder = '按名称搜索文件…';
   input.addEventListener('input', onInput);
   input.addEventListener('keydown', onKeydown);
 
@@ -76,7 +76,7 @@ function renderResults(): void {
   if (results.length === 0) {
     const empty = document.createElement('div');
     empty.className = 'quick-open-empty';
-    empty.textContent = input?.value ? 'No files found' : 'Type to search files...';
+    empty.textContent = input?.value ? '未找到文件' : '输入以搜索文件…';
     resultsList.appendChild(empty);
     return;
   }

@@ -197,7 +197,7 @@ describe('search-bar', () => {
 
     input.value = 'needle';
     input.dispatch('input');
-    expect(result.textContent).toBe('1 of 3');
+    expect(result.textContent).toBe('1 / 3');
 
     input.dispatch('keydown', {
       key: 'Enter',
@@ -206,7 +206,7 @@ describe('search-bar', () => {
       metaKey: false,
       ctrlKey: false,
     });
-    expect(result.textContent).toBe('2 of 3');
+    expect(result.textContent).toBe('2 / 3');
 
     input.dispatch('keydown', {
       key: 'Enter',
@@ -215,7 +215,7 @@ describe('search-bar', () => {
       metaKey: false,
       ctrlKey: false,
     });
-    expect(result.textContent).toBe('1 of 3');
+    expect(result.textContent).toBe('1 / 3');
 
     destroySearchBar('session-1');
   });
@@ -233,7 +233,7 @@ describe('search-bar', () => {
 
     input.value = 'missing';
     input.dispatch('input');
-    expect(result.textContent).toBe('No results');
+    expect(result.textContent).toBe('无结果');
 
     input.value = '';
     input.dispatch('input');

@@ -12,6 +12,7 @@
 @import url('./styles/mcp-inspector.css');
 @import url('./styles/git-panel.css');
 @import url('./styles/file-viewer.css');
+@import url('./styles/preview-column.css');
 @import url('./styles/session-history.css');
 @import url('./styles/alerts.css');
 @import url('./styles/p2p-sharing.css');
@@ -22,3 +23,4 @@
 @import url('./styles/project-tab.css');
 @import url('./styles/widgets.css');
 @import url('./styles/chrome-import.css');
+@import url('./styles/attachment-overlay.css');

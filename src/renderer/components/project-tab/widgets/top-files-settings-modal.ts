@@ -13,7 +13,7 @@ export function showTopFilesSettings(
   widget: OverviewWidget,
   onSave: (patch: Partial<TopFilesConfig>) => void,
 ): void {
-  const shell = createModalShell({ id: 'top-files-settings-modal', title: 'Top Files Settings' });
+  const shell = createModalShell({ id: 'top-files-settings-modal', title: '热门文件设置' });
 
   const { limit: currentLimit } = resolveTopFilesConfig(widget.config as Partial<TopFilesConfig> | undefined);
 
@@ -24,7 +24,7 @@ export function showTopFilesSettings(
   limitField.className = 'widget-settings-field';
 
   const limitLabel = document.createElement('label');
-  limitLabel.textContent = 'How many files to show';
+  limitLabel.textContent = '显示文件数量';
   limitLabel.htmlFor = 'top-files-settings-limit';
   limitField.appendChild(limitLabel);
 
@@ -38,17 +38,17 @@ export function showTopFilesSettings(
 
   const limitHelp = document.createElement('div');
   limitHelp.className = 'widget-settings-help';
-  limitHelp.textContent = `Top K files by estimated token count (${TOP_FILES_LIMIT_MIN}–${TOP_FILES_LIMIT_MAX}).`;
+  limitHelp.textContent = `按估算 token 数排名的前 K 个文件（${TOP_FILES_LIMIT_MIN}–${TOP_FILES_LIMIT_MAX}）。`;
   limitField.appendChild(limitHelp);
 
   form.appendChild(limitField);
   shell.body.appendChild(form);
 
-  const cancel = createModalButton('Cancel', false);
+  const cancel = createModalButton('取消', false);
   cancel.addEventListener('click', close);
   shell.actions.appendChild(cancel);
 
-  const save = createModalButton('Save', true);
+  const save = createModalButton('保存', true);
   save.addEventListener('click', () => {
     const raw = parseInt(limitInput.value, 10);
     const clamped = Math.max(

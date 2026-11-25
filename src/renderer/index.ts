@@ -226,12 +226,22 @@ async function main(): Promise<void> {
     });
   }
 
-  // Load persisted state
+  // Set the UI locale BEFORE loading state: appState.load() synchronously emits
+  // 'state-loaded', and the layout components render t() strings inside that
+  // event. Read the persisted locale directly (a cheap file read) so the active
+  // locale is already correct when those listeners run; otherwise use the OS one.
+  const persisted = await window.vibeyard.store.load();
+  const preloadLocale: Locale =
+    persisted?.preferences?.locale ?? resolveSystemLocale(navigator.language);
+  setI18nLocale(preloadLocale);
+  document.documentElement.lang = preloadLocale;
+
+  // Load persisted state (the layout now renders in the correct locale).
   await appState.load();
 
-  // Initialize the UI locale before anything else renders strings.
-  // Persisted choice wins; otherwise fall back to the OS language and persist
-  // it so future launches start in the same locale.
+  // Reconcile the locale against appState and persist on first launch. When a
+  // choice was saved this is a no-op; otherwise it stores the resolved system
+  // locale so future runs reuse it.
   initI18n();
   initCtlBridge();
 

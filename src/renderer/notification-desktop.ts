@@ -8,9 +8,9 @@ const previousStatus = new Map<string, SessionStatus>();
 const activeNotifications = new Map<string, Notification>();
 
 function bodyForStatus(name: string, status: SessionStatus): string {
-  if (status === 'input') return `${name} needs your input to continue`;
-  if (status === 'completed') return `${name} has completed`;
-  return `${name} is waiting for input`;
+  if (status === 'input') return `${name} 需要你输入内容以继续`;
+  if (status === 'completed') return `${name} 已完成`;
+  return `${name} 正在等待输入`;
 }
 
 /** Dismiss this session's live banner, if any, and forget it. */
@@ -34,7 +34,7 @@ function showNotification(sessionId: string, status: SessionStatus): void {
   // is still sitting in Notification Center. Clicking it then does nothing but
   // raise the app. Without a tag each notification gets its own id and listener.
   const notification = new Notification(found?.project.name ?? 'Vibeyard', {
-    body: bodyForStatus(found?.session.name ?? 'Session', status),
+    body: bodyForStatus(found?.session.name ?? '会话', status),
     silent: true,
   });
   activeNotifications.set(sessionId, notification);

@@ -31,7 +31,7 @@ export function renderUnsupportedGuard(
   const caps = getProviderCapabilities(providerId);
   if (caps?.[capability] === false) {
     const name = getProviderDisplayName(providerId);
-    container.innerHTML = `<div class="inspector-empty">${label} is not supported for ${name} sessions</div>`;
+    container.innerHTML = `<div class="inspector-empty">${name} 会话不支持${label}</div>`;
     return true;
   }
   return false;
@@ -41,8 +41,8 @@ export function emptyMessage(fallback: string): string {
   if (!inspectorState.inspectedSessionId) return fallback;
   const instance = getTerminalInstance(inspectorState.inspectedSessionId);
   if (!instance?.wasResumed) return fallback;
-  const label = fallback.toLowerCase().includes('tool') ? 'tools' : fallback.toLowerCase().includes('context') ? 'context' : 'history';
-  return `Session resumed — ${label} not available`;
+  const label = fallback.toLowerCase().includes('tool') ? '工具' : fallback.toLowerCase().includes('context') ? '上下文' : '历史';
+  return `会话已恢复——${label}不可用`;
 }
 
 export function createToolInputEl(toolInput: unknown): HTMLPreElement {
@@ -98,7 +98,7 @@ export function createToolDetailEl(toolInput: unknown, rawToolName?: string): HT
 
     const labelEl = document.createElement('span');
     labelEl.className = 'inspector-tool-detail-label';
-    labelEl.textContent = 'Raw Tool';
+    labelEl.textContent = '原始工具';
 
     const valueEl = document.createElement('span');
     valueEl.className = 'inspector-tool-detail-value';
@@ -131,7 +131,7 @@ export function makeExpandable(row: HTMLElement, key: string, selector: string, 
 }
 
 export function agentLabel(ev: InspectorEvent): string {
-  return ev.agent_type || ev.agent_id || 'Subagent';
+  return ev.agent_type || ev.agent_id || '子代理';
 }
 
 export function isAgentEvent(ev: InspectorEvent): boolean {
@@ -155,22 +155,22 @@ export function createAgentDetailEl(ev: InspectorEvent, duration: number | null)
   el.addEventListener('click', (e) => e.stopPropagation());
 
   const entries: [string, string][] = [];
-  if (ev.agent_type) entries.push(['Type', ev.agent_type]);
+  if (ev.agent_type) entries.push(['类型', ev.agent_type]);
   if (ev.agent_id) entries.push(['ID', ev.agent_id]);
 
   if (ev.type === 'subagent_stop') {
-    if (duration !== null) entries.push(['Duration', formatDuration(duration)]);
-    if (ev.agent_transcript_path) entries.push(['Transcript', ev.agent_transcript_path]);
+    if (duration !== null) entries.push(['时长', formatDuration(duration)]);
+    if (ev.agent_transcript_path) entries.push(['记录', ev.agent_transcript_path]);
     if (ev.last_assistant_message) {
       const msg = ev.last_assistant_message.length > 500
         ? ev.last_assistant_message.slice(0, 500) + '...'
         : ev.last_assistant_message;
-      entries.push(['Result', msg]);
+      entries.push(['结果', msg]);
     }
   }
 
   if (entries.length === 0) {
-    el.textContent = 'No additional details';
+    el.textContent = '无其他详细信息';
     return el;
   }
 
@@ -233,33 +233,33 @@ export function badgeClass(type: string): string {
 
 export function badgeLabel(type: string): string {
   switch (type) {
-    case 'user_prompt': return 'Prompt';
-    case 'tool_use': return 'Tool';
-    case 'pre_tool_use': return 'Pre-Tool';
-    case 'tool_failure': return 'Failure';
-    case 'stop': return 'Done';
-    case 'stop_failure': return 'Error';
-    case 'session_start': return 'Start';
-    case 'session_end': return 'End';
-    case 'permission_request': return 'Input';
-    case 'permission_denied': return 'Denied';
+    case 'user_prompt': return '提示';
+    case 'tool_use': return '工具';
+    case 'pre_tool_use': return '工具前';
+    case 'tool_failure': return '失败';
+    case 'stop': return '完成';
+    case 'stop_failure': return '错误';
+    case 'session_start': return '开始';
+    case 'session_end': return '结束';
+    case 'permission_request': return '输入';
+    case 'permission_denied': return '已拒绝';
     case 'subagent_start': return 'Agent';
     case 'subagent_stop': return 'Agent';
-    case 'notification': return 'Notify';
-    case 'pre_compact': return 'Compact';
-    case 'post_compact': return 'Compact';
-    case 'task_created': return 'Task+';
-    case 'task_completed': return 'Task OK';
-    case 'worktree_create': return 'Worktree+';
-    case 'worktree_remove': return 'Worktree-';
+    case 'notification': return '通知';
+    case 'pre_compact': return '压缩';
+    case 'post_compact': return '压缩';
+    case 'task_created': return '任务+';
+    case 'task_completed': return '任务完成';
+    case 'worktree_create': return '工作树+';
+    case 'worktree_remove': return '工作树-';
     case 'cwd_changed': return 'CWD';
-    case 'file_changed': return 'File';
-    case 'config_change': return 'Config';
-    case 'elicitation': return 'Ask';
-    case 'elicitation_result': return 'Answer';
-    case 'instructions_loaded': return 'Instr';
-    case 'teammate_idle': return 'Idle';
-    case 'status_update': return 'Status';
+    case 'file_changed': return '文件';
+    case 'config_change': return '配置';
+    case 'elicitation': return '询问';
+    case 'elicitation_result': return '答复';
+    case 'instructions_loaded': return '指令';
+    case 'teammate_idle': return '空闲';
+    case 'status_update': return '状态';
     default: return escapeHtml(type);
   }
 }

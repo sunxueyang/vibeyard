@@ -38,7 +38,7 @@ export function showElementInfo(instance: BrowserTabInstance, info: ElementInfo,
 
   const selectorLabel = document.createElement('div');
   selectorLabel.className = 'inspect-selector-label';
-  selectorLabel.textContent = 'Selector';
+  selectorLabel.textContent = '选择器';
   instance.elementInfoEl.appendChild(selectorLabel);
 
   const selectorOptions = buildSelectorOptions(

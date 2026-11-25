@@ -91,10 +91,10 @@ describe('closeSessionWithConfirm', () => {
 
     expect(mockShowConfirmDialog).toHaveBeenCalledTimes(1);
     const [title, message, options] = mockShowConfirmDialog.mock.calls[0];
-    expect(title).toBe('Close session');
+    expect(title).toBe('关闭会话');
     expect(message).toContain('S1');
-    expect(message).toContain('still active');
-    expect(options.confirmLabel).toBe('Close');
+    expect(message).toContain('仍在运行');
+    expect(options.confirmLabel).toBe('关闭');
     expect(project.sessions).toHaveLength(1);
 
     options.onConfirm();
@@ -109,10 +109,10 @@ describe('closeSessionWithConfirm', () => {
 
     expect(mockShowConfirmDialog).toHaveBeenCalledTimes(1);
     const [title, message, options] = mockShowConfirmDialog.mock.calls[0];
-    expect(title).toBe('Close session');
+    expect(title).toBe('关闭会话');
     expect(message).toContain('S1');
-    expect(message).toContain('still active');
-    expect(options.confirmLabel).toBe('Close');
+    expect(message).toContain('仍在运行');
+    expect(options.confirmLabel).toBe('关闭');
     expect(project.sessions).toHaveLength(1);
 
     options.onConfirm();
@@ -171,9 +171,9 @@ describe('closeAllSessionsWithConfirm', () => {
     closeAllSessionsWithConfirm(project.id);
 
     const [title, message, options] = mockShowConfirmDialog.mock.calls[0];
-    expect(title).toBe('Close session');
+    expect(title).toBe('关闭会话');
     expect(message).toContain('S2');
-    expect(options.confirmLabel).toBe('Close');
+    expect(options.confirmLabel).toBe('关闭');
   });
 
   it('shows singular dialog when exactly one session is awaiting input', () => {
@@ -185,9 +185,9 @@ describe('closeAllSessionsWithConfirm', () => {
     closeAllSessionsWithConfirm(project.id);
 
     const [title, message, options] = mockShowConfirmDialog.mock.calls[0];
-    expect(title).toBe('Close session');
+    expect(title).toBe('关闭会话');
     expect(message).toContain('S3');
-    expect(options.confirmLabel).toBe('Close');
+    expect(options.confirmLabel).toBe('关闭');
   });
 
   it('shows plural dialog with count when multiple sessions are working', () => {
@@ -197,9 +197,9 @@ describe('closeAllSessionsWithConfirm', () => {
     closeAllSessionsWithConfirm(project.id);
 
     const [title, message, options] = mockShowConfirmDialog.mock.calls[0];
-    expect(title).toBe('Close sessions');
-    expect(message).toContain('3 sessions');
-    expect(options.confirmLabel).toBe('Close all');
+    expect(title).toBe('关闭多个会话');
+    expect(message).toContain('3 个会话');
+    expect(options.confirmLabel).toBe('全部关闭');
 
     options.onConfirm();
     expect(project.sessions).toHaveLength(0);
@@ -216,10 +216,10 @@ describe('closeAllSessionsWithConfirm', () => {
     closeAllSessionsWithConfirm(project.id);
 
     const [title, message, options] = mockShowConfirmDialog.mock.calls[0];
-    expect(title).toBe('Close sessions');
-    expect(message).toContain('2 sessions');
-    expect(message).toContain('still active');
-    expect(options.confirmLabel).toBe('Close all');
+    expect(title).toBe('关闭多个会话');
+    expect(message).toContain('2 个会话');
+    expect(message).toContain('在运行');
+    expect(options.confirmLabel).toBe('全部关闭');
   });
 });
 
@@ -357,9 +357,9 @@ describe('confirmAppClose', () => {
 
     expect(mockShowConfirmDialog).toHaveBeenCalledTimes(1);
     const [title, message, options] = mockShowConfirmDialog.mock.calls[0];
-    expect(title).toBe('Quit Vibeyard');
-    expect(message).toBe('A session is still active. Quitting will interrupt it.');
-    expect(options.confirmLabel).toBe('Quit');
+    expect(title).toBe('退出 Vibeyard');
+    expect(message).toBe('仍有会话在运行，退出将中断该会话。');
+    expect(options.confirmLabel).toBe('退出');
     expect(onConfirm).not.toHaveBeenCalled();
 
     options.onConfirm();
@@ -377,7 +377,7 @@ describe('confirmAppClose', () => {
 
     expect(mockShowConfirmDialog).toHaveBeenCalledTimes(1);
     const [, message] = mockShowConfirmDialog.mock.calls[0];
-    expect(message).toContain('A session is still active');
+    expect(message).toContain('仍有会话在运行');
   });
 
   it('counts active sessions across multiple projects with plural copy', () => {
@@ -399,9 +399,9 @@ describe('confirmAppClose', () => {
 
     expect(mockShowConfirmDialog).toHaveBeenCalledTimes(1);
     const [title, message, options] = mockShowConfirmDialog.mock.calls[0];
-    expect(title).toBe('Quit Vibeyard');
-    expect(message).toBe('3 sessions are still active. Quitting will interrupt them.');
-    expect(options.confirmLabel).toBe('Quit');
+    expect(title).toBe('退出 Vibeyard');
+    expect(message).toBe('仍有 3 个会话在运行，退出将中断这些会话。');
+    expect(options.confirmLabel).toBe('退出');
   });
 
   it('does not call onConfirm when user cancels (onConfirm never invoked on dialog)', () => {

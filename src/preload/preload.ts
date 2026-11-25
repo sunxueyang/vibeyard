@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer, webFrame, webUtils } from 'electron';
-import type { CostData, ProviderId, CliProviderMeta, StatsCache, ReadinessResult, ToolFailureData, SettingsWarningData, SettingsValidationResult, StatusLineConflictData, InspectorEvent, ProviderConfig, ReadFileResult, FileStatResult, TopFilesResult, FsChange, DeepSearchResult, GithubFetchResult, GithubRepo, ChromeProfile, ChromeImportOptions, ChromeImportProgress, ChromeImportResult, ClipboardSource } from '../shared/types';
+import type { CostData, ProviderId, CliProviderMeta, StatsCache, ReadinessResult, ToolFailureData, SettingsWarningData, SettingsValidationResult, StatusLineConflictData, InspectorEvent, ProviderConfig, ReadFileResult, FileStatResult, TopFilesResult, FsChange, DeepSearchResult, GithubFetchResult, GithubRepo, ChromeProfile, ChromeImportOptions, ChromeImportProgress, ChromeImportResult, ClipboardSource, SessionAttachments } from '../shared/types';
 import { ZOOM_MIN, ZOOM_MAX } from '../shared/types';
 import type { CtlCommand, CtlResult } from '../shared/ctl-protocol';
 
@@ -21,6 +21,12 @@ export interface VibeyardApi {
     transcriptExists(providerId: ProviderId, cliSessionId: string | null, projectPath: string, configDir?: string): Promise<boolean>;
     transcriptExistsSync(providerId: ProviderId, cliSessionId: string | null, projectPath: string, configDir?: string): boolean;
     deepSearch(query: string): Promise<DeepSearchResult[]>;
+    attachments(opts: {
+      providerId: ProviderId;
+      cliSessionId: string | null;
+      projectPath: string;
+      configDir?: string;
+    }): Promise<SessionAttachments>;
     onHookStatus(callback: (sessionId: string, status: 'working' | 'waiting' | 'completed' | 'input', hookName: string) => void): () => void;
     onCliSessionId(callback: (sessionId: string, cliSessionId: string) => void): () => void;
     /** @deprecated Use onCliSessionId instead */
@@ -59,6 +65,10 @@ export interface VibeyardApi {
   store: {
     load(): Promise<unknown>;
     save(state: unknown): Promise<void>;
+  };
+  cache: {
+    getStats(): Promise<{ entries: number; bytes: number }>;
+    clear(): Promise<void>;
   };
   profiles: {
     provision(profileId: string, customPath?: string): Promise<{ configDir: string; managed: boolean }>;
@@ -154,6 +164,7 @@ export interface VibeyardApi {
   };
   clipboard: {
     write(text: string, source?: ClipboardSource): Promise<void>;
+    saveClipboardImage(projectPath?: string): Promise<{ hasImage: boolean; filePath: string | null }>;
   };
   zoom: {
     set(factor: number): void;
@@ -207,6 +218,8 @@ const api: VibeyardApi = {
       ipcRenderer.sendSync('session:transcriptExistsSync', providerId, cliSessionId, projectPath, configDir),
     deepSearch: (query) =>
       ipcRenderer.invoke('session:deepSearch', query),
+    attachments: (opts) =>
+      ipcRenderer.invoke('session:attachments', opts),
     onHookStatus: (callback) =>
       onChannel('session:hookStatus', (sessionId, status, hookName) =>
         callback(sessionId as string, status as 'working' | 'waiting' | 'completed' | 'input', (hookName as string) || '')),
@@ -273,6 +286,10 @@ const api: VibeyardApi = {
   store: {
     load: () => ipcRenderer.invoke('store:load'),
     save: (state) => ipcRenderer.invoke('store:save', state),
+  },
+  cache: {
+    getStats: () => ipcRenderer.invoke('cache:getStats'),
+    clear: () => ipcRenderer.invoke('cache:clear'),
   },
   profiles: {
     provision: (profileId, customPath) => ipcRenderer.invoke('profiles:provision', profileId, customPath),
@@ -356,6 +373,7 @@ const api: VibeyardApi = {
   },
   clipboard: {
     write: (text: string, source?: ClipboardSource) => ipcRenderer.invoke('clipboard:write', text, source),
+    saveClipboardImage: (projectPath?: string) => ipcRenderer.invoke('clipboard:saveImage', projectPath),
   },
   zoom: {
     set: (factor: number) => {

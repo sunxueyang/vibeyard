@@ -131,7 +131,7 @@ describe('session-inspector timeline MCP badges', () => {
       .map((el) => el.textContent);
     const desc = (container as unknown as FakeElement).querySelector('.inspector-desc');
 
-    expect(badges).toContain('Denied');
+    expect(badges).toContain('已拒绝');
     expect(badges).toContain('MCP');
     expect(desc?.textContent).toBe('memory / create_entities');
   });
@@ -153,7 +153,7 @@ describe('session-inspector timeline MCP badges', () => {
       .querySelectorAll('.inspector-badge')
       .map((el) => el.textContent);
 
-    expect(badges).toContain('Tool');
+    expect(badges).toContain('工具');
     expect(badges).not.toContain('MCP');
   });
 });
@@ -186,7 +186,7 @@ describe('session-inspector timeline event descriptions', () => {
     expect(descFor({
       type: 'config_change', timestamp: 1, hookEvent: 'ConfigChange',
       file_path: '/home/u/.claude/settings.json', source: 'user_settings',
-    })).toBe('Config: /home/u/.claude/settings.json');
+    })).toBe('配置：/home/u/.claude/settings.json');
   });
 
   it('renders Elicitation from message, not the nonexistent question', () => {
@@ -205,7 +205,7 @@ describe('session-inspector timeline event descriptions', () => {
   it('renders ElicitationResult from action', () => {
     expect(descFor({
       type: 'elicitation_result', timestamp: 1, hookEvent: 'ElicitationResult', action: 'accept',
-    })).toBe('Elicitation accept');
+    })).toBe('信息补充 accept');
   });
 
   // The common `cwd` field is the directory the hook ran in — the value
@@ -238,27 +238,27 @@ describe('session-inspector timeline event descriptions', () => {
     expect(descFor({
       type: 'teammate_idle', timestamp: 1, hookEvent: 'TeammateIdle',
       teammate_name: 'reviewer', team_name: 'core',
-    })).toBe('Teammate idle: reviewer');
+    })).toBe('队友空闲：reviewer');
   });
 
   it('renders SessionEnd with its reason', () => {
     expect(descFor({
       type: 'session_end', timestamp: 1, hookEvent: 'SessionEnd', reason: 'clear',
-    })).toBe('Session ended: clear');
+    })).toBe('会话已结束：clear');
   });
 
   it('prefers a task subject over the raw task id', () => {
     expect(descFor({
       type: 'task_completed', timestamp: 1, hookEvent: 'TaskCompleted',
       task_id: 'task-001', task_subject: 'Ship the release',
-    })).toBe('Task completed: Ship the release');
+    })).toBe('任务已完成：Ship the release');
   });
 
   it('falls back to the generic label when a field is absent', () => {
     expect(descFor({ type: 'config_change', timestamp: 1, hookEvent: 'ConfigChange' }))
-      .toBe('Config changed');
+      .toBe('配置已更改');
     expect(descFor({ type: 'cwd_changed', timestamp: 1, hookEvent: 'CwdChanged' }))
-      .toBe('Working directory changed');
+      .toBe('工作目录已更改');
   });
 });
 

@@ -3,6 +3,7 @@ import { areaLabel } from '../dom-utils.js';
 import { closeSessionIfFileMissing } from '../session-close.js';
 import { destroySearchBar } from './search-bar.js';
 import { isAbsolutePath, dirname, samePath } from '../../shared/platform.js';
+import { t } from '../i18n.js';
 
 interface FileViewerInstance {
   element: HTMLElement;
@@ -116,7 +117,7 @@ async function loadDiff(instance: FileViewerInstance, sessionId: string): Promis
   if (isFirstLoad) {
     const loading = document.createElement('div');
     loading.className = 'file-viewer-content';
-    loading.innerHTML = '<div class="diff-line context">Loading diff...</div>';
+    loading.innerHTML = `<div class="diff-line context">${t('fileViewer.loading')}</div>`;
     body.appendChild(loading);
   }
 
@@ -133,7 +134,7 @@ async function loadDiff(instance: FileViewerInstance, sessionId: string): Promis
     body.innerHTML = '';
     const err = document.createElement('div');
     err.className = 'file-viewer-content';
-    err.innerHTML = '<div class="diff-line context">Failed to load diff</div>';
+    err.innerHTML = `<div class="diff-line context">${t('fileViewer.loadFailed')}</div>`;
     body.appendChild(err);
   }
 }
@@ -238,10 +239,20 @@ export function getFileViewerInstance(sessionId: string): FileViewerInstance | u
   return instances.get(sessionId);
 }
 
+const IMAGE_FILE_PATH = /\.(png|jpe?g|gif|webp|bmp|ico|svg)$/i;
+
 /** Called from git-panel when a file row is clicked */
 export function showFileViewer(filePath: string, area: string, worktreePath?: string): void {
   const project = appState.activeProject;
   if (!project) return;
+
+  // Images have no meaningful text diff. Open them in the file-reader, which
+  // renders the actual picture, instead of a garbled binary diff.
+  if (IMAGE_FILE_PATH.test(filePath)) {
+    appState.addFileReaderSession(project.id, filePath);
+    return;
+  }
+
   appState.addDiffViewerSession(project.id, filePath, area, worktreePath);
 }
 

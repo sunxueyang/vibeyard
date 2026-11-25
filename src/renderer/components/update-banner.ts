@@ -36,17 +36,17 @@ export function initUpdateBanner(): void {
 
   window.vibeyard.update.onAvailable((info) => {
     latestVersion = info.version;
-    show(`Downloading update v${info.version}...`);
+    show(`正在下载更新 v${info.version}…`);
   });
 
   window.vibeyard.update.onDownloadProgress((info) => {
-    const label = latestVersion ? `v${latestVersion}` : 'update';
-    show(`Downloading ${label}... ${info.percent}%`);
+    const label = latestVersion ? `v${latestVersion}` : '更新';
+    show(`正在下载 ${label}… ${info.percent}%`);
   });
 
   window.vibeyard.update.onDownloaded((info) => {
-    show(`Update v${info.version} ready.`, {
-      label: 'Restart',
+    show(`更新 v${info.version} 已就绪。`, {
+      label: '重启',
       action: () => window.vibeyard.update.install(),
     });
   });

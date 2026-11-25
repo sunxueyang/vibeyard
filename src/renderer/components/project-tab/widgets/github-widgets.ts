@@ -14,13 +14,13 @@ type ListKind = 'prs' | 'issues';
 function timeAgo(iso: string): string {
   const then = new Date(iso).getTime();
   const diffSec = Math.max(1, Math.floor((Date.now() - then) / 1000));
-  if (diffSec < 60) return `${diffSec}s ago`;
+  if (diffSec < 60) return `${diffSec} 秒前`;
   const diffMin = Math.floor(diffSec / 60);
-  if (diffMin < 60) return `${diffMin}m ago`;
+  if (diffMin < 60) return `${diffMin} 分钟前`;
   const diffHr = Math.floor(diffMin / 60);
-  if (diffHr < 24) return `${diffHr}h ago`;
+  if (diffHr < 24) return `${diffHr} 小时前`;
   const diffDay = Math.floor(diffHr / 24);
-  if (diffDay < 30) return `${diffDay}d ago`;
+  if (diffDay < 30) return `${diffDay} 天前`;
   return new Date(iso).toLocaleDateString();
 }
 
@@ -38,8 +38,8 @@ function makeGithubWidget(kind: ListKind, host: WidgetHost): WidgetInstance {
 
   const markAllBtn = document.createElement('button');
   markAllBtn.className = 'widget-github-mark-all';
-  markAllBtn.textContent = 'Mark all read';
-  markAllBtn.title = 'Mark all visible items as read';
+  markAllBtn.textContent = '全部标记为已读';
+  markAllBtn.title = '将所有可见项标记为已读';
   markAllBtn.addEventListener('click', () => {
     markAllReadInProject(host.projectId);
     render();
@@ -124,18 +124,18 @@ function makeGithubWidget(kind: ListKind, host: WidgetHost): WidgetInstance {
     if (kind === 'prs' && item.draft) {
       const draft = document.createElement('span');
       draft.className = 'widget-github-badge widget-github-badge-draft';
-      draft.textContent = 'draft';
+      draft.textContent = '草稿';
       title.appendChild(draft);
     }
     if (kind === 'prs' && item.merged_at) {
       const merged = document.createElement('span');
       merged.className = 'widget-github-badge widget-github-badge-merged';
-      merged.textContent = 'merged';
+      merged.textContent = '已合并';
       title.appendChild(merged);
     } else if (item.state === 'closed') {
       const closed = document.createElement('span');
       closed.className = 'widget-github-badge widget-github-badge-closed';
-      closed.textContent = 'closed';
+      closed.textContent = '已关闭';
       title.appendChild(closed);
     }
 
@@ -143,7 +143,7 @@ function makeGithubWidget(kind: ListKind, host: WidgetHost): WidgetInstance {
 
     const meta = document.createElement('div');
     meta.className = 'widget-github-row-meta';
-    const author = item.user?.login ?? 'unknown';
+    const author = item.user?.login ?? '未知';
     meta.innerHTML = `${esc(author)} · ${esc(timeAgo(item.updated_at))}`;
     info.appendChild(meta);
 
@@ -161,7 +161,7 @@ function makeGithubWidget(kind: ListKind, host: WidgetHost): WidgetInstance {
   function render(): void {
     if (destroyed) return;
     body.innerHTML = '';
-    repoLabel.textContent = resolvedRepo ?? 'No repo configured';
+    repoLabel.textContent = resolvedRepo ?? '未配置仓库';
 
     if (lastError) {
       const err = document.createElement('div');
@@ -174,7 +174,7 @@ function makeGithubWidget(kind: ListKind, host: WidgetHost): WidgetInstance {
     if (loading && items.length === 0) {
       const l = document.createElement('div');
       l.className = 'widget-github-loading';
-      l.textContent = 'Loading…';
+      l.textContent = '加载中…';
       body.appendChild(l);
       return;
     }
@@ -182,7 +182,7 @@ function makeGithubWidget(kind: ListKind, host: WidgetHost): WidgetInstance {
     if (!resolvedRepo) {
       const empty = document.createElement('div');
       empty.className = 'widget-github-empty';
-      empty.textContent = 'No GitHub remote detected. Open settings to set a repo.';
+      empty.textContent = '未检测到 GitHub 远程仓库，请打开设置指定仓库。';
       body.appendChild(empty);
       return;
     }
@@ -190,7 +190,7 @@ function makeGithubWidget(kind: ListKind, host: WidgetHost): WidgetInstance {
     if (items.length === 0) {
       const empty = document.createElement('div');
       empty.className = 'widget-github-empty';
-      empty.textContent = kind === 'prs' ? 'No pull requests.' : 'No issues.';
+      empty.textContent = kind === 'prs' ? '暂无 Pull Request。' : '暂无 Issue。';
       body.appendChild(empty);
       return;
     }
@@ -213,7 +213,7 @@ function makeGithubWidget(kind: ListKind, host: WidgetHost): WidgetInstance {
     }
 
     if (!(await window.vibeyard.github.isAvailable())) {
-      lastError = 'gh CLI not installed. Install from cli.github.com and run `gh auth login`.';
+      lastError = '未安装 gh CLI，请从 cli.github.com 安装并运行 `gh auth login`。';
       loading = false;
       render();
       return;
@@ -226,7 +226,7 @@ function makeGithubWidget(kind: ListKind, host: WidgetHost): WidgetInstance {
     if (destroyed) return;
 
     if (!result.ok) {
-      lastError = result.error ?? 'Failed to fetch from GitHub.';
+      lastError = result.error ?? '从 GitHub 获取数据失败。';
       loading = false;
       render();
       return;
@@ -310,8 +310,8 @@ function buildIssueActions(
 
   const fixBtn = document.createElement('button');
   fixBtn.className = 'btn-primary btn-xs widget-github-fix-main';
-  fixBtn.textContent = 'Fix';
-  fixBtn.title = `Plan a solution for #${item.number} in a new session`;
+  fixBtn.textContent = '修复';
+  fixBtn.title = `在新会话中为 #${item.number} 规划解决方案`;
   fixBtn.addEventListener('click', onAction(() => startFixSession(projectId, item)));
   fixGroup.appendChild(fixBtn);
 
@@ -319,8 +319,8 @@ function buildIssueActions(
     const chevron = document.createElement('button');
     chevron.className = 'btn-primary btn-xs widget-github-fix-dropdown';
     chevron.textContent = '▼';
-    chevron.title = 'Plan in another provider';
-    chevron.setAttribute('aria-label', 'Plan in another provider');
+    chevron.title = '在其他模型中规划';
+    chevron.setAttribute('aria-label', '在其他模型中规划');
     chevron.setAttribute('aria-haspopup', 'menu');
     chevron.addEventListener('click', (e) => {
       e.preventDefault();
@@ -346,8 +346,8 @@ function buildIssueActions(
 
   const kanbanBtn = document.createElement('button');
   kanbanBtn.className = 'btn-primary btn-xs';
-  kanbanBtn.textContent = 'Add to Kanban';
-  kanbanBtn.title = 'Create a board task from this issue';
+  kanbanBtn.textContent = '加入看板';
+  kanbanBtn.title = '根据此 Issue 创建看板任务';
   kanbanBtn.addEventListener('click', onAction(() => addIssueToKanban(item)));
   actions.appendChild(kanbanBtn);
 
@@ -384,8 +384,8 @@ function buildPRActions(
 
   const reviewBtn = document.createElement('button');
   reviewBtn.className = 'btn-primary btn-xs widget-github-fix-main';
-  reviewBtn.textContent = 'Review';
-  reviewBtn.title = `Review PR #${item.number} in a new session`;
+  reviewBtn.textContent = '评审';
+  reviewBtn.title = `在新会话中评审 PR #${item.number}`;
   reviewBtn.addEventListener('click', onAction(() => startReviewSession(projectId, item)));
   reviewGroup.appendChild(reviewBtn);
 
@@ -393,8 +393,8 @@ function buildPRActions(
     const chevron = document.createElement('button');
     chevron.className = 'btn-primary btn-xs widget-github-fix-dropdown';
     chevron.textContent = '▼';
-    chevron.title = 'Review in another provider';
-    chevron.setAttribute('aria-label', 'Review in another provider');
+    chevron.title = '在其他模型中评审';
+    chevron.setAttribute('aria-label', '在其他模型中评审');
     chevron.setAttribute('aria-haspopup', 'menu');
     chevron.addEventListener('click', (e) => {
       e.preventDefault();
@@ -420,8 +420,8 @@ function buildPRActions(
 
   const kanbanBtn = document.createElement('button');
   kanbanBtn.className = 'btn-primary btn-xs';
-  kanbanBtn.textContent = 'Add to Kanban';
-  kanbanBtn.title = 'Create a board task from this PR';
+  kanbanBtn.textContent = '加入看板';
+  kanbanBtn.title = '根据此 PR 创建看板任务';
   kanbanBtn.addEventListener('click', onAction(() => addPRToKanban(item)));
   actions.appendChild(kanbanBtn);
 
@@ -429,7 +429,7 @@ function buildPRActions(
 }
 
 function startReviewSession(projectId: string, item: GithubItem, providerId?: ProviderId): void {
-  const session = appState.addSession(projectId, `Review #${item.number}`, undefined, providerId);
+  const session = appState.addSession(projectId, `评审 #${item.number}`, undefined, providerId);
   if (!session) return;
   setPendingPrompt(session.id, `/review pr #${item.number} ${item.html_url}`);
 }

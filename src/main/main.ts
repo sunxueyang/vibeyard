@@ -6,9 +6,11 @@ import { installCtlScript } from './ctl-script';
 import { stripInheritedCtlEnv } from './ctl-tokens';
 import { killAllPtys } from './pty-manager';
 import { flushState, loadState } from './store';
+import { flushContentCache } from './content-cache';
 import { createAppMenu } from './menu';
 import { restartAndResync } from './hook-status';
 import { initProviders, getAllProviders } from './providers/registry';
+import { validateBinaryExistsAsync } from './providers/resolve-binary';
 import { initAutoUpdater } from './auto-updater';
 import { stopGitWatcher } from './git-watcher';
 import { stopAllFileWatchers } from './file-watcher';
@@ -19,6 +21,14 @@ import { isHttpUrl } from '../shared/url';
 
 // Before anything spawns: never pass a parent Vibeyard tab's ctl identity on.
 stripInheritedCtlEnv();
+
+// Chromium's native window occlusion detection can misreport this window as
+// hidden on this machine, which stops frame presentation and leaves a white
+// window even though the renderer is healthy. Disable it before app ready so
+// the page stays visible regardless of how the app is launched.
+app.commandLine.appendSwitch('disable-features', 'CalculateNativeWinOcclusion');
+app.commandLine.appendSwitch('disable-backgrounding-occluded-windows');
+app.commandLine.appendSwitch('disable-renderer-backgrounding');
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -114,6 +124,7 @@ function createWindow(): void {
       return;
     }
     flushState();
+    flushContentCache();
   });
 
   mainWindow.on('closed', () => {
@@ -126,51 +137,19 @@ function createWindow(): void {
   });
 }
 
-app.whenReady().then(async () => {
+app.whenReady().then(() => {
   initProviders();
 
-  const providers = getAllProviders();
-  const missing = providers.filter(p => !p.validatePrerequisites());
-  for (const p of missing) {
-    console.warn(`Provider "${p.meta.displayName}" not available`);
-  }
-  if (missing.length === providers.length) {
-    const bullets = providers.map(p => `  • ${p.meta.displayName}`).join('\n');
-    dialog.showErrorBox(
-      'Vibeyard — No CLI Provider Found',
-      `Vibeyard needs at least one supported CLI provider installed to run.\n\n` +
-        `Install one of the following, then restart Vibeyard:\n\n${bullets}`,
-    );
-    app.quit();
-    return;
-  }
-
+  // Show the window first. The heavy work that used to run here — blocking
+  // `where`/`npm` subprocess probes for each provider and hook installation —
+  // now happens in initializeBackground() after the window is visible, so the
+  // app paints immediately instead of hanging with a "not responding" ghost.
   registerIpcHandlers();
   const state = loadState();
   createAppMenu(state.preferences?.debugMode ?? false);
   createWindow();
 
-  // Warn if Python is missing on Windows (hooks depend on it)
-  const pythonWarning = checkPythonAvailable();
-  if (pythonWarning) {
-    console.warn(pythonWarning);
-    dialog.showMessageBox(mainWindow!, {
-      type: 'warning',
-      title: 'Vibeyard — Python Not Found',
-      message: pythonWarning,
-    });
-  }
-
-  // Install hooks and status scripts for available providers (after window creation so dialogs can attach)
-  for (const provider of getAllProviders()) {
-    if (provider.validatePrerequisites()) {
-      await provider.installHooks(mainWindow);
-      provider.installStatusScripts();
-    }
-  }
-  try { installCtlScript(); } catch (err) { console.warn('Failed to install vibeyard-ctl:', err); }
-
-  initAutoUpdater();
+  void initializeBackground();
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
@@ -191,6 +170,63 @@ app.whenReady().then(async () => {
   });
 });
 
+/**
+ * Non-blocking post-window initialization. Provider binary probes run in
+ * parallel as awaited child processes (never on the main thread), and hook
+ * installation is deferred until the renderer is ready to host any dialog.
+ */
+async function initializeBackground(): Promise<void> {
+  // Validate every provider in parallel. Each check uses async subprocesses,
+  // so a missing provider no longer freezes the main thread for its timeout.
+  const checks = await Promise.all(
+    getAllProviders().map(async (provider) => ({
+      provider,
+      ok: await validateBinaryExistsAsync(provider.meta.binaryName),
+    })),
+  );
+  const available = checks.filter((c) => c.ok).map((c) => c.provider);
+  for (const c of checks) {
+    if (!c.ok) console.warn(`Provider "${c.provider.meta.displayName}" not available`);
+  }
+
+  if (available.length === 0) {
+    const bullets = getAllProviders().map((p) => `  • ${p.meta.displayName}`).join('\n');
+    dialog.showErrorBox(
+      'Vibeyard — No CLI Provider Found',
+      `Vibeyard needs at least one supported CLI provider installed to run.\n\n` +
+        `Install one of the following, then restart Vibeyard:\n\n${bullets}`,
+    );
+    app.quit();
+    return;
+  }
+
+  // Install hooks and status scripts for the available providers. guardedInstall
+  // itself waits for the renderer only when a conflict modal is required.
+  for (const provider of available) {
+    try {
+      await provider.installHooks(mainWindow);
+      provider.installStatusScripts();
+    } catch (err) {
+      console.warn(`Failed to install hooks for ${provider.meta.displayName}`, err);
+    }
+  }
+
+  // Warn if Python is missing on Windows (hooks depend on it).
+  const pythonWarning = checkPythonAvailable();
+  if (pythonWarning && mainWindow && !mainWindow.isDestroyed()) {
+    console.warn(pythonWarning);
+    dialog.showMessageBox(mainWindow, {
+      type: 'warning',
+      title: 'Vibeyard — Python Not Found',
+      message: pythonWarning,
+    });
+  }
+
+  try { installCtlScript(); } catch (err) { console.warn('Failed to install vibeyard-ctl:', err); }
+
+  initAutoUpdater();
+}
+
 app.on('before-quit', (event) => {
   if (!isCloseConfirmed()) {
     event.preventDefault();
@@ -198,6 +234,7 @@ app.on('before-quit', (event) => {
     return;
   }
   flushState();
+  flushContentCache();
   const win = BrowserWindow.getAllWindows()[0];
   if (win && !win.isDestroyed()) {
     win.webContents.send('app:quitting');

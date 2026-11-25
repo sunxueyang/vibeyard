@@ -23,7 +23,8 @@ function makeSessionItem(session: SessionRecord, onClick: () => void): HTMLButto
   const btn = document.createElement('button');
   btn.className = 'send-menu-item';
   btn.dataset['sessionId'] = session.id;
-  btn.title = `${session.name} — ${status}`;
+  const statusLabel = status === 'running' ? '运行中' : status === 'dormant' ? '休眠中' : '已退出';
+  btn.title = `${session.name} — ${statusLabel}`;
 
   const dot = document.createElement('span');
   dot.className = `send-menu-dot send-menu-dot-${status}`;
@@ -69,13 +70,13 @@ function renderItems(instance: BrowserTabInstance, actions: SendMenuActions): vo
   }
 
   menu.appendChild(
-    makeActionItem('+ New session', () => {
+    makeActionItem('+ 新建会话', () => {
       dismissSendMenu(instance);
       void actions.onNewSession();
     }),
   );
   menu.appendChild(
-    makeActionItem('+ New session with custom args…', () => {
+    makeActionItem('+ 新建会话（自定义参数）…', () => {
       dismissSendMenu(instance);
       actions.onNewWithArgs();
     }),

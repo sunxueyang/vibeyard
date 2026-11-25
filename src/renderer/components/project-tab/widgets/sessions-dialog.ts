@@ -11,7 +11,7 @@ type CleanupHolder = HTMLElement & { [CLEANUP_PROP]?: () => void };
 export function showSessionHistoryDialog(project: ProjectRecord): void {
   const shell = createModalShell({
     id: 'sessions-history-dialog',
-    title: 'Session History',
+    title: '会话历史',
     wide: true,
   });
 
@@ -32,7 +32,7 @@ export function showSessionHistoryDialog(project: ProjectRecord): void {
 
   renderSessionHistory(project, shell.body, INSTANCE_KEY);
 
-  const closeBtn = createModalButton('Close', false);
+  const closeBtn = createModalButton('关闭', false);
   closeBtn.addEventListener('click', close);
   shell.actions.appendChild(closeBtn);
 

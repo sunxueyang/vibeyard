@@ -5,6 +5,10 @@ const mockExecSync = vi.fn();
 
 vi.mock('child_process', () => ({
   execSync: (...args: unknown[]) => mockExecSync(...args),
+  exec: vi.fn((...args: unknown[]) => {
+    const cb = args[args.length - 1] as (err: Error, stdout: string) => void;
+    cb(new Error('not found'), '');
+  }),
 }));
 
 vi.mock('os', () => ({

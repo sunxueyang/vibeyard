@@ -142,7 +142,7 @@ export function showSearchBar(sessionId: string, backend: SearchBackend): void {
 
   const input = document.createElement('input');
   input.type = 'text';
-  input.placeholder = 'Search...';
+  input.placeholder = '搜索…';
   input.spellcheck = false;
 
   const resultCount = document.createElement('span');
@@ -151,27 +151,27 @@ export function showSearchBar(sessionId: string, backend: SearchBackend): void {
   const matchCaseBtn = document.createElement('button');
   matchCaseBtn.className = 'search-toggle-btn';
   matchCaseBtn.textContent = 'Aa';
-  matchCaseBtn.title = 'Match Case';
+  matchCaseBtn.title = '区分大小写';
 
   const regexBtn = document.createElement('button');
   regexBtn.className = 'search-toggle-btn';
   regexBtn.textContent = '.*';
-  regexBtn.title = 'Use Regular Expression';
+  regexBtn.title = '使用正则表达式';
 
   const prevBtn = document.createElement('button');
   prevBtn.className = 'search-nav-btn';
   prevBtn.textContent = '\u2191';
-  prevBtn.title = 'Previous Match (Shift+Enter)';
+  prevBtn.title = '上一个匹配（Shift+Enter）';
 
   const nextBtn = document.createElement('button');
   nextBtn.className = 'search-nav-btn';
   nextBtn.textContent = '\u2193';
-  nextBtn.title = 'Next Match (Enter)';
+  nextBtn.title = '下一个匹配（Enter）';
 
   const closeBtn = document.createElement('button');
   closeBtn.className = 'search-nav-btn search-close-btn';
   closeBtn.textContent = '\u2715';
-  closeBtn.title = 'Close (Escape)';
+  closeBtn.title = '关闭（Escape）';
 
   bar.appendChild(input);
   bar.appendChild(resultCount);
@@ -278,6 +278,6 @@ export function isSearchBarVisible(sessionId: string): boolean {
 
 export function formatSearchResultText(query: string, state: SearchResultState): string {
   if (!query) return '';
-  if (state.totalCount === 0) return 'No results';
-  return `${Math.max(state.currentIndex + 1, 1)} of ${state.totalCount}`;
+  if (state.totalCount === 0) return '无结果';
+  return `${Math.max(state.currentIndex + 1, 1)} / ${state.totalCount}`;
 }

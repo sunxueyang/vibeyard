@@ -24,7 +24,7 @@ export function showJoinDialog(): void {
 
   // Title
   const title = document.createElement('h3');
-  title.textContent = 'Join Remote Session';
+  title.textContent = '加入远程会话';
   dialog.appendChild(title);
 
   // Offer input section (PIN + code paste together)
@@ -33,7 +33,7 @@ export function showJoinDialog(): void {
 
   const pinLabel = document.createElement('div');
   pinLabel.className = 'share-label';
-  pinLabel.textContent = 'Enter the PIN from the host';
+  pinLabel.textContent = '输入主机提供的 PIN 码';
   offerSection.appendChild(pinLabel);
 
   const pinInput = createPinInput();
@@ -41,13 +41,13 @@ export function showJoinDialog(): void {
 
   const offerLabel = document.createElement('div');
   offerLabel.className = 'share-label share-label-spaced';
-  offerLabel.textContent = 'Paste the host\'s connection code';
+  offerLabel.textContent = '粘贴主机的连接码';
   offerSection.appendChild(offerLabel);
 
   const offerTextarea = document.createElement('textarea');
   offerTextarea.className = 'share-code';
   offerTextarea.rows = 3;
-  offerTextarea.placeholder = 'Paste connection code here...';
+  offerTextarea.placeholder = '在此粘贴连接码…';
   offerSection.appendChild(offerTextarea);
   dialog.appendChild(offerSection);
 
@@ -62,7 +62,7 @@ export function showJoinDialog(): void {
 
   const answerLabel = document.createElement('div');
   answerLabel.className = 'share-label';
-  answerLabel.textContent = 'Send this response code back to the host';
+  answerLabel.textContent = '将此响应码发回给主机';
   answerSection.appendChild(answerLabel);
 
   const answerTextarea = document.createElement('textarea');
@@ -73,11 +73,11 @@ export function showJoinDialog(): void {
 
   const copyAnswerBtn = document.createElement('button');
   copyAnswerBtn.className = 'btn-secondary share-btn';
-  copyAnswerBtn.textContent = 'Copy Response';
+  copyAnswerBtn.textContent = '复制响应码';
   copyAnswerBtn.addEventListener('click', () => {
     navigator.clipboard.writeText(answerTextarea.value);
-    copyAnswerBtn.textContent = 'Copied!';
-    setTimeout(() => { copyAnswerBtn.textContent = 'Copy Response'; }, 1500);
+    copyAnswerBtn.textContent = '已复制！';
+    setTimeout(() => { copyAnswerBtn.textContent = '复制响应码'; }, 1500);
   });
   answerSection.appendChild(copyAnswerBtn);
   dialog.appendChild(answerSection);
@@ -88,11 +88,11 @@ export function showJoinDialog(): void {
 
   const joinBtn = document.createElement('button');
   joinBtn.className = 'btn-primary share-btn';
-  joinBtn.textContent = 'Join';
+  joinBtn.textContent = '加入';
 
   const closeBtn = document.createElement('button');
   closeBtn.className = 'btn-secondary share-btn';
-  closeBtn.textContent = 'Cancel';
+  closeBtn.textContent = '取消';
   closeBtn.addEventListener('click', closeJoinDialog);
 
   actions.appendChild(closeBtn);
@@ -116,13 +116,13 @@ export function showJoinDialog(): void {
     }
     const offer = offerTextarea.value.trim();
     if (!offer) {
-      statusEl.textContent = 'Please paste the connection code from the host.';
+      statusEl.textContent = '请粘贴主机提供的连接码。';
       return;
     }
 
     joinBtn.disabled = true;
-    joinBtn.textContent = 'Connecting...';
-    statusEl.textContent = 'Generating response code...';
+    joinBtn.textContent = '正在连接…';
+    statusEl.textContent = '正在生成响应码…';
     offerTextarea.readOnly = true;
     pinInput.readOnly = true;
 
@@ -131,17 +131,17 @@ export function showJoinDialog(): void {
 
       answerTextarea.value = answer;
       answerSection.classList.remove('hidden');
-      statusEl.textContent = 'Send the response code to the host. The session will appear once they connect.';
+      statusEl.textContent = '请将响应码发送给主机。对方连接后，会话将显示出来。';
 
-      closeBtn.textContent = 'Close';
+      closeBtn.textContent = '关闭';
     } catch (err) {
       if (err instanceof DecryptionError) {
-        statusEl.textContent = 'Could not decrypt connection code. Check the PIN and try again.';
+        statusEl.textContent = '无法解密连接码。请检查 PIN 码后重试。';
       } else {
-        statusEl.textContent = `Error: ${err instanceof Error ? err.message : 'Invalid code'}`;
+        statusEl.textContent = `错误：${err instanceof Error ? err.message : '无效的连接码'}`;
       }
       joinBtn.disabled = false;
-      joinBtn.textContent = 'Join';
+      joinBtn.textContent = '加入';
       offerTextarea.readOnly = false;
       pinInput.readOnly = false;
     }

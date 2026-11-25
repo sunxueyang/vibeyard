@@ -22,7 +22,7 @@ export function buildResumeWithProviderItems(
   for (const p of others) {
     const item = document.createElement('div');
     item.className = 'tab-context-menu-item';
-    item.textContent = `Resume with ${p.displayName}`;
+    item.textContent = `使用 ${p.displayName} 恢复`;
     item.addEventListener('click', (e) => {
       e.stopPropagation();
       onPick(p.id);

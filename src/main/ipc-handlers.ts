@@ -22,6 +22,7 @@ import type { CtlResult } from '../shared/ctl-protocol';
 import { getProvider, getProviderMeta, getAllProviderMetas, getAllProviders } from './providers/registry';
 import { buildHandoffPrompt } from './providers/resume-handoff';
 import { searchSessions } from './session-deep-search';
+import { getSessionAttachments } from './session-attachments';
 import type { ProviderId, GitFileEntry, SettingsValidationResult, ReadFileResult, FileStatResult, TopFilesResult, TopFile } from '../shared/types';
 import { estimateTokens, TOKEN_COUNT_MAX_CHARS } from '../shared/token-estimate';
 import { analyzeReadiness } from './readiness/analyzer';
@@ -35,6 +36,10 @@ import { buildVibeyardignoreMatcher } from './vibeyardignore';
 import { setCloseConfirmed } from './close-state';
 import { provisionProfileDir } from './profiles';
 import { getKeychainIsolationStatus } from './claude-keychain';
+import {
+  getCachedText, putCachedText, getCachedImage, putCachedImage,
+  getContentCacheStats, clearContentCache, type CacheStat,
+} from './content-cache';
 
 /**
  * Check if a resolved path is within one of the known project directories.
@@ -329,6 +334,27 @@ export function registerIpcHandlers(): void {
     if (source === 'selection' && isLinux) clipboard.writeText(text, 'selection');
   });
 
+  // Saves whatever image is currently on the OS clipboard to a file under the
+  // project (falling back to the temp dir) and returns its absolute path. The
+  // terminal itself can only carry text over the PTY, so an attached image is
+  // handed to the CLI as a file reference it can open with its Read tool.
+  // Returns `{ hasImage: false }` when the clipboard holds no image (e.g. plain
+  // text), so the caller can fall back to a normal text paste.
+  ipcMain.handle('clipboard:saveImage', async (_event, projectPath?: string) => {
+    const image = clipboard.readImage();
+    if (!image || image.isEmpty()) {
+      return { hasImage: false, filePath: null as string | null };
+    }
+    const dir = projectPath
+      ? path.join(projectPath, '.vibeyard-attachments')
+      : path.join(os.tmpdir(), 'vibeyard-attachments');
+    await fs.promises.mkdir(dir, { recursive: true });
+    const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const filePath = path.join(dir, `clipboard-${stamp}.png`);
+    await fs.promises.writeFile(filePath, image.toPNG());
+    return { hasImage: true, filePath };
+  });
+
   ipcMain.handle('provider:getConfig', async (_event, providerId: ProviderId, projectPath: string) => {
     const provider = getProvider(providerId);
     return provider.getConfig(projectPath);
@@ -407,6 +433,17 @@ export function registerIpcHandlers(): void {
 
   ipcMain.handle('session:deepSearch', (_event, query: string) => {
     return searchSessions(query);
+  });
+
+  // Return the resources/artifacts parsed from a session's transcript so the
+  // terminal attachment overlay can list and preview them.
+  ipcMain.handle('session:attachments', (_event, opts: {
+    providerId: ProviderId;
+    cliSessionId: string | null;
+    projectPath: string;
+    configDir?: string;
+  }) => {
+    return getSessionAttachments(opts);
   });
 
   ipcMain.handle('provider:checkBinary', (_event, providerId: ProviderId = 'claude') => {
@@ -748,7 +785,13 @@ export function registerIpcHandlers(): void {
       if (isLikelyBinaryFile(resolved)) {
         return { ok: false, reason: 'binary' };
       }
-      return { ok: true, content: fs.readFileSync(resolved, 'utf-8') };
+      const stat = fs.statSync(resolved);
+      const cacheStat: CacheStat = { size: stat.size, mtimeMs: stat.mtimeMs };
+      const cached = getCachedText(resolved, cacheStat);
+      if (cached !== null) return { ok: true, content: cached };
+      const content = fs.readFileSync(resolved, 'utf-8');
+      putCachedText(resolved, cacheStat, content);
+      return { ok: true, content };
     } catch (err) {
       console.warn('fs:readFile failed:', err);
       return { ok: false, reason: 'error' };
@@ -781,13 +824,20 @@ export function registerIpcHandlers(): void {
         console.warn(`fs:readImage rejected: ${resolved} exceeds ${MAX_IMAGE_BYTES} bytes`);
         return null;
       }
+      const cacheStat: CacheStat = { size: stat.size, mtimeMs: stat.mtimeMs };
+      const cached = getCachedImage(resolved, cacheStat);
+      if (cached) return cached;
       const buf = fs.readFileSync(resolved);
+      putCachedImage(resolved, cacheStat, buf, mime);
       return { dataUrl: `data:${mime};base64,${buf.toString('base64')}` };
     } catch (err) {
       console.warn('fs:readImage failed:', err);
       return null;
     }
   });
+
+  ipcMain.handle('cache:getStats', () => getContentCacheStats());
+  ipcMain.handle('cache:clear', () => { clearContentCache(); });
 
   ipcMain.handle('fs:trashItem', (_event, filePath: string) =>
     withProjectPath('fs:trashItem', filePath, (resolved) => shell.trashItem(resolved)));

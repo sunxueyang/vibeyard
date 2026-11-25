@@ -253,7 +253,7 @@ function renderSidebar(projectId: string): void {
   sidebarEl.innerHTML = list.map(s => `
     <div class="terminal-list-item${s.id === activeId ? ' active' : ''}" data-shell-id="${esc(s.id)}">
       <span class="terminal-list-item-name">${esc(s.label)}</span>
-      <span class="terminal-list-item-close" title="Close Terminal">&times;</span>
+      <span class="terminal-list-item-close" title="关闭终端">&times;</span>
     </div>
   `).join('');
 
@@ -315,8 +315,8 @@ export function handleShellPtyExit(sessionId: string, exitCode: number): void {
   overlay.className = 'terminal-exit-overlay';
   overlay.innerHTML = `
     <div class="terminal-exit-message">
-      <div>Shell exited (code: ${exitCode})</div>
-      <button class="respawn-btn">Restart</button>
+      <div>Shell 已退出（退出码：${exitCode}）</div>
+      <button class="respawn-btn">重启</button>
     </div>
   `;
   overlay.querySelector('.respawn-btn')!.addEventListener('click', () => {
@@ -368,7 +368,7 @@ export function initProjectTerminal(): void {
   });
 
   const primaryKey = displayKeys(shortcutManager.getKeys('project-terminal-alt'));
-  toggleBtn.title = `Toggle Terminal (${primaryKey})`;
+  toggleBtn.title = `切换终端（${primaryKey}）`;
 
   toggleBtn.addEventListener('click', () => toggleProjectTerminal());
 

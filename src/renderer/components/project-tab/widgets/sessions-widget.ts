@@ -29,7 +29,7 @@ export const createSessionsWidget: WidgetFactory = (host) => {
     if (history.length === 0) {
       const empty = document.createElement('div');
       empty.className = 'widget-sessions-recent-empty';
-      empty.textContent = 'No archived sessions yet.';
+      empty.textContent = '暂无归档会话。';
       body.appendChild(empty);
     } else {
       const list = document.createElement('div');
@@ -46,7 +46,7 @@ export const createSessionsWidget: WidgetFactory = (host) => {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'widget-sessions-view-all-btn';
-      btn.textContent = `View all ${fullHistory.length} sessions →`;
+      btn.textContent = `查看全部 ${fullHistory.length} 个会话 →`;
       btn.addEventListener('click', () => showSessionHistoryDialog(project));
       body.appendChild(btn);
     }
@@ -55,7 +55,7 @@ export const createSessionsWidget: WidgetFactory = (host) => {
   function buildRecentRow(archived: ArchivedSession): HTMLElement {
     const row = document.createElement('div');
     row.className = 'widget-sessions-row widget-sessions-row-recent';
-    row.title = archived.cliSessionId ? 'Click to resume' : 'No CLI session id — cannot resume';
+    row.title = archived.cliSessionId ? '点击恢复' : '无 CLI 会话 ID，无法恢复';
 
     const main = document.createElement('div');
     main.className = 'widget-sessions-row-main';
@@ -94,7 +94,7 @@ export const createSessionsWidget: WidgetFactory = (host) => {
     bookmarkBtn.type = 'button';
     bookmarkBtn.className = `widget-sessions-bookmark-btn${isBookmarked ? ' bookmarked' : ''}`;
     bookmarkBtn.innerHTML = isBookmarked ? '&#9733;' : '&#9734;';
-    bookmarkBtn.title = isBookmarked ? 'Remove bookmark' : 'Bookmark session';
+    bookmarkBtn.title = isBookmarked ? '移除书签' : '收藏会话';
     bookmarkBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       appState.toggleBookmark(host.projectId, archived.id);
@@ -105,7 +105,7 @@ export const createSessionsWidget: WidgetFactory = (host) => {
     removeBtn.type = 'button';
     removeBtn.className = 'widget-sessions-remove-btn';
     removeBtn.innerHTML = '&times;';
-    removeBtn.title = 'Remove from history';
+    removeBtn.title = '从历史中移除';
     removeBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       appState.removeHistoryEntry(host.projectId, archived.id);
@@ -143,11 +143,11 @@ function formatRelativeDate(iso: string): string {
   if (Number.isNaN(then)) return '';
   const diffMs = Date.now() - then;
   const min = Math.floor(diffMs / 60_000);
-  if (min < 1) return 'just now';
-  if (min < 60) return `${min}m ago`;
+  if (min < 1) return '刚刚';
+  if (min < 60) return `${min} 分钟前`;
   const hr = Math.floor(min / 60);
-  if (hr < 24) return `${hr}h ago`;
+  if (hr < 24) return `${hr} 小时前`;
   const day = Math.floor(hr / 24);
-  if (day < 7) return `${day}d ago`;
+  if (day < 7) return `${day} 天前`;
   return new Date(iso).toLocaleDateString();
 }

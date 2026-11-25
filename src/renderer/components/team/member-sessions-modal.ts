@@ -32,13 +32,13 @@ export function showMemberSessionsModal(member: TeamMember, projectId: string): 
 
   closeModal();
 
-  titleEl.textContent = `Sessions with ${member.name}`;
+  titleEl.textContent = `与 ${member.name} 的会话`;
   bodyEl.innerHTML = '';
 
   if (active.length === 0 && archived.length === 0) {
     const empty = document.createElement('div');
     empty.className = 'team-sessions-empty';
-    empty.textContent = `No chat sessions yet for ${member.name}.`;
+    empty.textContent = `暂无 ${member.name} 的聊天会话。`;
     bodyEl.appendChild(empty);
   } else {
     const list = document.createElement('div');
@@ -51,7 +51,7 @@ export function showMemberSessionsModal(member: TeamMember, projectId: string): 
   }
 
   btnConfirm.style.display = 'none';
-  btnCancel.textContent = 'Close';
+  btnCancel.textContent = '关闭';
   overlay.classList.remove('hidden');
 
   const handleCancel = () => closeModal();
@@ -81,7 +81,7 @@ function archivedRow(entry: ArchivedSession, projectId: string): SessionRow {
   const provider = getProviderDisplayName(entry.providerId);
   return {
     name: entry.name,
-    meta: `Closed · ${formatRelative(Date.parse(entry.closedAt))}${canResume ? '' : ' · cannot resume'} · ${provider}`,
+    meta: `已关闭 · ${formatRelative(Date.parse(entry.closedAt))}${canResume ? '' : ' · 无法恢复'} · ${provider}`,
     onClick: canResume
       ? () => {
           void appState.resumeFromHistorySafe(projectId, entry.id);

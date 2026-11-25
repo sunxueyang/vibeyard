@@ -169,7 +169,7 @@ function createPanel(): HTMLElement {
 
   const title = document.createElement('div');
   title.className = 'inspector-title';
-  title.textContent = 'Inspector';
+  title.textContent = '检查器';
   header.appendChild(title);
 
   const closeBtn = document.createElement('button');
@@ -184,10 +184,10 @@ function createPanel(): HTMLElement {
   const tabBar = document.createElement('div');
   tabBar.className = 'inspector-tabs';
   const tabs: { id: typeof inspectorState.activeTab; label: string }[] = [
-    { id: 'timeline', label: 'Timeline' },
-    { id: 'costs', label: 'Costs' },
-    { id: 'tools', label: 'Tools' },
-    { id: 'context', label: 'Context' },
+    { id: 'timeline', label: '时间线' },
+    { id: 'costs', label: '成本' },
+    { id: 'tools', label: '工具' },
+    { id: 'context', label: '上下文' },
   ];
   for (const tab of tabs) {
     const btn = document.createElement('button');
@@ -206,8 +206,8 @@ function createPanel(): HTMLElement {
 
   const scrollToggle = document.createElement('button');
   scrollToggle.className = 'inspector-autoscroll-toggle active';
-  scrollToggle.textContent = 'Auto-scroll';
-  scrollToggle.title = 'Toggle auto-scroll to bottom';
+  scrollToggle.textContent = '自动滚动';
+  scrollToggle.title = '切换到底部自动滚动';
   scrollToggle.addEventListener('click', () => {
     inspectorState.autoScroll = !inspectorState.autoScroll;
     scrollToggle.classList.toggle('active', inspectorState.autoScroll);

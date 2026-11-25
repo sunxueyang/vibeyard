@@ -117,7 +117,7 @@ describe('share-dialog cleanup on close', () => {
     mockShareSession.mockResolvedValue({ offer: 'test-offer', handle: mockHandle });
 
     showShareDialog('session-1');
-    clickButton('Start Sharing');
+    clickButton('开始共享');
 
     await vi.waitFor(() => {
       expect(mockShareSession).toHaveBeenCalledWith('session-1', 'readonly', expect.any(String));
@@ -140,7 +140,7 @@ describe('share-dialog cleanup on close', () => {
     mockShareSession.mockResolvedValue({ offer: 'test-offer', handle: mockHandle });
 
     showShareDialog('session-1');
-    clickButton('Start Sharing');
+    clickButton('开始共享');
 
     await vi.waitFor(() => {
       expect(mockShareSession).toHaveBeenCalled();
@@ -160,7 +160,7 @@ describe('share-dialog cleanup on close', () => {
     mockIsSharing.mockReturnValue(true);
 
     showShareDialog('session-1');
-    clickButton('Start Sharing');
+    clickButton('开始共享');
 
     await vi.waitFor(() => {
       expect(mockEndShare).toHaveBeenCalledWith('session-1');

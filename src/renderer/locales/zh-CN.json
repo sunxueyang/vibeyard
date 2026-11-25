@@ -520,5 +520,29 @@
     "about": "关于",
     "general": "通用",
     "appearance": "外观"
+  },
+  "gitPanel": {
+    "loadingStatus": "正在加载 Git 状态…",
+    "notRepo": "不是 Git 仓库",
+    "noChanges": "没有未提交的更改",
+    "loadingChanges": "正在加载更改…",
+    "moreOverflow": "还有 {count} 项…",
+    "stage": "暂存",
+    "unstage": "取消暂存",
+    "discard": "放弃更改",
+    "openInEditor": "在编辑器中打开",
+    "copyPath": "复制路径",
+    "discardTrackedConfirm": "放弃对 \"{path}\" 的更改？此操作无法撤销。",
+    "discardUntrackedConfirm": "删除未跟踪的{kind} \"{path}\"？",
+    "kindFolder": "文件夹",
+    "kindFile": "文件"
+  },
+  "fileViewer": {
+    "loading": "正在加载差异…",
+    "loadFailed": "加载差异失败"
+  },
+  "previewColumn": {
+    "resizeHandle": "拖动以调整大小",
+    "hideButton": "隐藏面板"
   }
 }

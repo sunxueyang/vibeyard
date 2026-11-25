@@ -187,7 +187,7 @@ describe('show in file manager menu option', () => {
     await settle();
 
     const options = openMenu(container, '/proj/src');
-    expect(options.map((o) => o.label)).toEqual([`Open in ${FILE_MANAGER}`, 'Delete']);
+    expect(options.map((o) => o.label)).toEqual([`打开位置：${FILE_MANAGER}`, '删除']);
 
     options[0].action();
     expect((globalThis as any).vibeyard.fs.showInFolder).toHaveBeenCalledWith('/proj/src');
@@ -201,7 +201,7 @@ describe('show in file manager menu option', () => {
 
     const options = openMenu(container, '/proj/a.ts');
     expect(options.map((o) => o.label)).toEqual([
-      'Open in Browser', `Reveal in ${FILE_MANAGER}`, 'Properties', 'Delete',
+      '在浏览器中打开', `显示位置：${FILE_MANAGER}`, '属性', '删除',
     ]);
 
     options[1].action();

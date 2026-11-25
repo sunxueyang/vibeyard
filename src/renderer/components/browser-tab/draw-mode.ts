@@ -59,7 +59,7 @@ export async function captureScreenshotPath(instance: BrowserTabInstance): Promi
     const image = await instance.webview.capturePage();
     return await window.vibeyard.browser.saveScreenshot(instance.sessionId, image.toDataURL());
   } catch (err) {
-    console.error('Failed to capture browser screenshot', err);
+    console.error('浏览器截图失败', err);
     return null;
   }
 }
@@ -87,7 +87,7 @@ export async function sendDrawToNewSession(instance: BrowserTabInstance): Promis
   hideDrawError(instance);
   const imagePath = await captureScreenshotPath(instance);
   if (!imagePath) {
-    showDrawError(instance, 'Failed to capture screenshot. Try again.');
+    showDrawError(instance, '截图失败，请重试。');
     return;
   }
 
@@ -106,7 +106,7 @@ export async function sendDrawToCustomSession(instance: BrowserTabInstance): Pro
   hideDrawError(instance);
   const imagePath = await captureScreenshotPath(instance);
   if (!imagePath) {
-    showDrawError(instance, 'Failed to capture screenshot. Try again.');
+    showDrawError(instance, '截图失败，请重试。');
     return;
   }
 

@@ -131,7 +131,7 @@ function ensureBubble(): HTMLButtonElement {
   const b = document.createElement('button');
   b.className = 'file-prompt-bubble';
   b.type = 'button';
-  b.textContent = 'Ask AI';
+  b.textContent = '问 AI';
   b.style.display = 'none';
   b.addEventListener('mousedown', (e) => {
     e.preventDefault();
@@ -160,7 +160,7 @@ function ensureComposer(): HTMLDivElement {
   const textarea = document.createElement('textarea');
   textarea.className = 'inspect-instruction-input';
   textarea.rows = 3;
-  textarea.placeholder = 'Describe what you want to do…';
+  textarea.placeholder = '描述你想做什么…';
   inputRow.appendChild(textarea);
   p.appendChild(inputRow);
 
@@ -172,12 +172,12 @@ function ensureComposer(): HTMLDivElement {
   const submitBtn = document.createElement('button');
   submitBtn.className = 'inspect-submit-btn';
   submitBtn.type = 'button';
-  submitBtn.textContent = 'Send to AI';
+  submitBtn.textContent = '发送给 AI';
   const customBtn = document.createElement('button');
   customBtn.className = 'inspect-dropdown-btn';
   customBtn.type = 'button';
   customBtn.textContent = '▼';
-  customBtn.title = 'Send to custom session';
+  customBtn.title = '发送到自定义会话';
   submitGroup.appendChild(submitBtn);
   submitGroup.appendChild(customBtn);
   p.appendChild(submitGroup);

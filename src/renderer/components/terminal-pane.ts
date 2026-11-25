@@ -14,6 +14,7 @@ import { FilePathLinkProvider, GithubLinkProvider } from './terminal-link-provid
 import { attachClipboardCopyHandler, attachCopyOnSelect, collapseArmedTextareaOnContextMenu, initTerminalRenderer, releaseTerminalRenderer, wrapBracketedPaste } from './terminal-utils.js';
 import { FILE_PATH_DRAG_TYPE, NATIVE_FILES_DRAG_TYPE } from '../drag-types.js';
 import { showTerminalContextMenu } from './terminal-context-menu.js';
+import { attachAttachmentOverlay } from './attachment-overlay.js';
 
 interface TerminalInstance {
   terminal: Terminal;
@@ -47,6 +48,8 @@ interface TerminalInstance {
    * flickering down to a tiny number on every turn boundary.
    */
   peakOutputTokens: number;
+  /** Floating session-files overlay (resources/artifacts), cleaned up on destroy. */
+  overlay: { destroy(): void } | null;
 }
 
 const instances = new Map<string, TerminalInstance>();
@@ -119,6 +122,22 @@ export function createTerminalPane(
 
   const writeToPty = (data: string) => window.vibeyard.pty.write(sessionId, data);
 
+  // Save an image currently on the clipboard to a file under the project, then
+  // hand the CLI a file reference it can open with its Read tool. The PTY only
+  // carries text, so a raw clipboard image cannot travel as an attachment here.
+  const handlePasteImage = async (): Promise<boolean> => {
+    try {
+      const res = await window.vibeyard.clipboard.saveClipboardImage(projectPath);
+      if (res?.hasImage && res.filePath) {
+        window.vibeyard.pty.write(sessionId, wrapBracketedPaste(terminal, imageReference(res.filePath)));
+        return true;
+      }
+    } catch (err) {
+      console.warn('剪贴板图片保存失败', err);
+    }
+    return false;
+  };
+
   // Send CSI u encoding for Shift+Enter so Claude CLI treats it as newline
   attachClipboardCopyHandler(terminal, (e) => {
     if (e.shiftKey && e.key === 'Enter') {
@@ -126,7 +145,7 @@ export function createTerminalPane(
       e.preventDefault();
       return false;
     }
-  }, writeToPty);
+  }, writeToPty, handlePasteImage);
 
   const instance: TerminalInstance = {
     terminal,
@@ -150,9 +169,28 @@ export function createTerminalPane(
     pendingPromptTimer: null,
     lastSize: null,
     peakOutputTokens: 0,
+    overlay: null,
   };
 
   instances.set(sessionId, instance);
+
+  // Floating attachment overlay: lists this session's read resources and written
+  // artifacts, opening each in the app's own file-reader plugin.
+  if (projectId) {
+    const getCliSessionId = (): string | null => {
+      const project = appState.projects.find((p) => p.id === projectId);
+      const rec = project?.sessions.find((s) => s.id === sessionId);
+      return rec?.cliSessionId ?? instance.cliSessionId;
+    };
+    instance.overlay = attachAttachmentOverlay({
+      root: element,
+      projectId,
+      projectPath,
+      providerId,
+      getCliSessionId,
+      configDir,
+    });
+  }
 
   // Paint the rail. A store with a silent `restore*` seeder has to be *pulled* by any
   // consumer that builds its DOM lazily — a push-only consumer is only correct if its DOM
@@ -213,17 +251,21 @@ export function createTerminalPane(
   });
   element.addEventListener('drop', (e: DragEvent) => {
     element.classList.remove('drag-over');
-    const paths = collectDroppedPaths(e.dataTransfer);
-    if (paths.length === 0) return;
+    const files = collectDroppedFiles(e.dataTransfer);
+    if (files.length === 0) return;
     e.preventDefault();
-    if (injectTextIntoRunningSession(sessionId, paths.join(' ') + ' ')) {
+    const images = files.filter((f) => f.image).map((f) => f.path);
+    const others = files.filter((f) => !f.image).map((f) => f.path);
+    let text = others.join(' ') + ' ';
+    if (images.length) text += images.map(imageReference).join(' ') + ' ';
+    if (injectTextIntoRunningSession(sessionId, text)) {
       terminal.focus();
     }
   });
 
   xtermWrap.addEventListener('contextmenu', (e) => {
     e.preventDefault();
-    showTerminalContextMenu(e.clientX, e.clientY, terminal, writeToPty);
+    showTerminalContextMenu(e.clientX, e.clientY, terminal, writeToPty, handlePasteImage);
   });
 
   return instance;
@@ -265,16 +307,33 @@ export function setPendingCliName(sessionId: string, name: string): void {
   }
 }
 
-function collectDroppedPaths(dt: DataTransfer | null): string[] {
+const IMAGE_EXTENSION = /\.(png|jpe?g|gif|webp|bmp)$/i;
+
+export function isImagePath(p: string): boolean {
+  return IMAGE_EXTENSION.test(p);
+}
+
+// Phrasing matches the CLI's documented image-path usage ("Analyze this image:
+// /path/to/image.png"), so the model opens the file with its Read tool.
+export function imageReference(filePath: string): string {
+  return `Analyze this image: "${filePath}" `;
+}
+
+interface DroppedFile {
+  path: string;
+  image: boolean;
+}
+
+function collectDroppedFiles(dt: DataTransfer | null): DroppedFile[] {
   if (!dt) return [];
   const internal = dt.getData(FILE_PATH_DRAG_TYPE);
-  if (internal) return [internal];
-  const paths: string[] = [];
+  if (internal) return [{ path: internal, image: isImagePath(internal) }];
+  const files: DroppedFile[] = [];
   for (const file of dt.files) {
     const path = window.vibeyard.fs.getDroppedFilePath(file);
-    if (path) paths.push(path);
+    if (path) files.push({ path, image: isImagePath(path) });
   }
-  return paths;
+  return files;
 }
 
 export function injectTextIntoRunningSession(sessionId: string, text: string): boolean {
@@ -466,6 +525,7 @@ export function destroyTerminal(sessionId: string): void {
   clearPendingPromptTimer(instance);
   window.vibeyard.pty.kill(sessionId);
   releaseTerminalRenderer(instance.terminal);
+  instance.overlay?.destroy();
   instance.terminal.dispose();
   instance.element.remove();
   instances.delete(sessionId);
@@ -552,12 +612,12 @@ export function updateCostDisplay(sessionId: string, cost: CostInfo | null): voi
     el.appendChild(vrule);
     const io = document.createElement('span');
     io.className = 'ssl-io seg';
-    io.textContent = `${formatTokens(cost.totalInputTokens)} in / ${formatTokens(outTokens)} out`;
+    io.textContent = `${formatTokens(cost.totalInputTokens)} 输入 / ${formatTokens(outTokens)} 输出`;
     el.appendChild(io);
 
     const durationSec = (cost.totalDurationMs / 1000).toFixed(1);
     const apiDurationSec = (cost.totalApiDurationMs / 1000).toFixed(1);
-    el.title = `Cache read: ${formatTokens(cost.cacheReadTokens)} · Cache create: ${formatTokens(cost.cacheCreationTokens)} · Duration: ${durationSec}s · API: ${apiDurationSec}s`;
+    el.title = `缓存读取：${formatTokens(cost.cacheReadTokens)} · 缓存创建：${formatTokens(cost.cacheCreationTokens)} · 耗时：${durationSec}s · API：${apiDurationSec}s`;
   } else {
     el.title = '';
   }
@@ -578,7 +638,7 @@ export function updateContextDisplay(sessionId: string, info: ContextWindowInfo)
     el.replaceChildren();
     const label = document.createElement('span');
     label.className = 'ssl-label';
-    label.textContent = 'Context';
+    label.textContent = '上下文';
     const meter = document.createElement('div');
     meter.className = 'ssl-meter';
     fill = document.createElement('div');

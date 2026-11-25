@@ -157,7 +157,7 @@ function createPanel(): HTMLElement {
 
   const title = document.createElement('span');
   title.className = 'debug-title';
-  title.textContent = 'Event Debug';
+  title.textContent = '事件调试';
   header.appendChild(title);
 
   const controls = document.createElement('div');
@@ -168,7 +168,7 @@ function createPanel(): HTMLElement {
   select.className = 'debug-filter';
   const allOpt = document.createElement('option');
   allOpt.value = '';
-  allOpt.textContent = 'All Events';
+  allOpt.textContent = '全部事件';
   select.appendChild(allOpt);
   for (const t of Object.keys(TYPE_COLORS)) {
     const opt = document.createElement('option');
@@ -189,7 +189,7 @@ function createPanel(): HTMLElement {
   const sessionInput = document.createElement('input');
   sessionInput.type = 'text';
   sessionInput.className = 'debug-filter debug-session-input';
-  sessionInput.placeholder = 'Filter by session ID';
+  sessionInput.placeholder = '按会话 ID 筛选';
   sessionInput.addEventListener('input', () => {
     filterSessionId = resolveSessionFilter(sessionInput.value.trim());
     renderAllEvents();
@@ -199,7 +199,7 @@ function createPanel(): HTMLElement {
   const clearInputBtn = document.createElement('button');
   clearInputBtn.className = 'debug-btn debug-session-clear';
   clearInputBtn.innerHTML = '&times;';
-  clearInputBtn.title = 'Clear session filter';
+  clearInputBtn.title = '清除会话筛选';
   clearInputBtn.addEventListener('click', () => {
     sessionInput.value = '';
     filterSessionId = '';
@@ -211,17 +211,17 @@ function createPanel(): HTMLElement {
   // Auto-scroll toggle
   const scrollBtn = document.createElement('button');
   scrollBtn.className = 'debug-btn';
-  scrollBtn.textContent = 'Auto-scroll: ON';
+  scrollBtn.textContent = '自动滚动：开';
   scrollBtn.addEventListener('click', () => {
     autoScroll = !autoScroll;
-    scrollBtn.textContent = `Auto-scroll: ${autoScroll ? 'ON' : 'OFF'}`;
+    scrollBtn.textContent = `自动滚动：${autoScroll ? '开' : '关'}`;
   });
   controls.appendChild(scrollBtn);
 
   // Clear button
   const clearBtn = document.createElement('button');
   clearBtn.className = 'debug-btn';
-  clearBtn.textContent = 'Clear';
+  clearBtn.textContent = '清除';
   clearBtn.addEventListener('click', () => {
     events.length = 0;
     if (logEl) logEl.innerHTML = '';
@@ -268,7 +268,7 @@ export function setDebugVisible(show: boolean): void {
         const filters: string[] = [];
         if (filterType) filters.push(filterType);
         if (filterSessionId && filterSessionId !== NO_MATCH) filters.push(getSessionName(filterSessionId));
-        countBar!.textContent = `${filtered.length} events${filters.length ? ` (filtered: ${filters.join(', ')})` : ''}`;
+        countBar!.textContent = `${filtered.length} 个事件${filters.length ? `（已筛选：${filters.join('、')}）` : ''}`;
       };
       updateCount();
       countInterval = setInterval(updateCount, 500);

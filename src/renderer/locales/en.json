@@ -520,5 +520,29 @@
     "about": "About",
     "general": "General",
     "appearance": "Appearance"
+  },
+  "gitPanel": {
+    "loadingStatus": "Loading git status…",
+    "notRepo": "Not a git repository",
+    "noChanges": "No uncommitted changes",
+    "loadingChanges": "Loading changes…",
+    "moreOverflow": "and {count} more...",
+    "stage": "Stage",
+    "unstage": "Unstage",
+    "discard": "Discard Changes",
+    "openInEditor": "Open in Editor",
+    "copyPath": "Copy Path",
+    "discardTrackedConfirm": "Discard changes to \"{path}\"? This cannot be undone.",
+    "discardUntrackedConfirm": "Delete untracked {kind} \"{path}\"?",
+    "kindFolder": "folder",
+    "kindFile": "file"
+  },
+  "fileViewer": {
+    "loading": "Loading diff...",
+    "loadFailed": "Failed to load diff"
+  },
+  "previewColumn": {
+    "resizeHandle": "Drag to resize",
+    "hideButton": "Hide panel"
   }
 }

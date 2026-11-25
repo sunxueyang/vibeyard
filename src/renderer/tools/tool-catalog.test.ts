@@ -6,7 +6,7 @@ describe('tool-catalog', () => {
     const tool = findTool('gh');
     expect(tool).toBeDefined();
     expect(tool!.name).toBe('GitHub CLI');
-    expect(tool!.description).toBe('efficient GitHub access instead of web fetching');
+    expect(tool!.description).toBe('高效访问 GitHub，替代网页抓取');
   });
 
   it('finds jq tool', () => {

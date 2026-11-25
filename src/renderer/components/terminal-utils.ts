@@ -21,7 +21,7 @@ export function wrapBracketedPaste(terminal: Terminal, text: string): string {
 export function copyText(text: string, source: ClipboardSource = 'explicit'): void {
   if (!text) return;
   window.vibeyard.clipboard.write(text, source)
-    .catch((err) => console.warn('clipboard write failed', err));
+    .catch((err) => console.warn('剪贴板写入失败', err));
 }
 
 export function copySelection(terminal: Terminal, source?: ClipboardSource): void {
@@ -69,11 +69,16 @@ export function collapseArmedTextareaOnContextMenu(terminal: Terminal): void {
  *
  * Pass `writeToPty` to enable Ctrl+V paste on Windows — it receives the
  * clipboard text and should forward it to the PTY.
+ *
+ * Pass `handlePasteImage` to handle an image on the clipboard first: it saves
+ * the image to a file and returns true when it owned the paste, or false to
+ * fall back to the plain-text paste path.
  */
 export function attachClipboardCopyHandler(
   terminal: Terminal,
   extend?: ExtraKeyHandler,
-  writeToPty?: (data: string) => void
+  writeToPty?: (data: string) => void,
+  handlePasteImage?: () => Promise<boolean>
 ): void {
   terminal.attachCustomKeyEventHandler((e) => {
     // Cmd/Ctrl+F: bubble to document for search
@@ -94,13 +99,24 @@ export function attachClipboardCopyHandler(
       return false;
     }
 
-    // Windows: Ctrl+V → async paste clipboard to PTY
+    // Windows: Ctrl+V → async paste clipboard to PTY. If the clipboard holds an
+    // image, the caller saves it to a file and injects a Read-tool reference;
+    // otherwise we fall back to pasting the clipboard text.
     if (isWin && e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey && e.key === 'v' && writeToPty) {
       if (e.type === 'keydown') {
-        navigator.clipboard.readText().then((text) => {
-          if (!text) return;
-          writeToPty(wrapBracketedPaste(terminal, text));
-        }).catch(() => {});
+        const pasteText = () => {
+          navigator.clipboard.readText().then((text) => {
+            if (!text) return;
+            writeToPty!(wrapBracketedPaste(terminal, text));
+          }).catch(() => {});
+        };
+        if (handlePasteImage) {
+          handlePasteImage().then((handled) => {
+            if (!handled) pasteText();
+          }).catch(pasteText);
+        } else {
+          pasteText();
+        }
       }
       e.preventDefault(); // prevent native paste event from firing
       return false; // suppress \x16

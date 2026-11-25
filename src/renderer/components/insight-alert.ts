@@ -18,7 +18,7 @@ function handleInsightAction(result: InsightResult): void {
   const project = appState.activeProject;
   if (!project) return;
 
-  const session = appState.addPlanSession(project.id, 'Fix Pre-Context');
+  const session = appState.addPlanSession(project.id, '修复前置上下文');
   if (!session) return;
 
   removeAlertBanner();

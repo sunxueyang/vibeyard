@@ -14,11 +14,11 @@ function getOverlay(): HTMLElement {
   overlay.style.display = 'none';
   overlay.innerHTML = `
     <div class="modal-box mcp-add-box">
-      <div class="modal-title">Add MCP Server</div>
+      <div class="modal-title">添加 MCP 服务器</div>
       <div id="mcp-add-body" class="modal-body mcp-add-body"></div>
       <div class="modal-actions">
-        <button id="mcp-add-cancel" class="btn-secondary">Cancel</button>
-        <button id="mcp-add-confirm" class="btn-primary">Add</button>
+        <button id="mcp-add-cancel" class="btn-secondary">取消</button>
+        <button id="mcp-add-confirm" class="btn-primary">添加</button>
       </div>
     </div>`;
   document.body.appendChild(overlay);
@@ -29,18 +29,18 @@ function renderTypeFields(type: 'stdio' | 'sse'): string {
   if (type === 'stdio') {
     return `
       <div class="modal-field">
-        <label for="mcp-add-command">Command</label>
-        <input id="mcp-add-command" type="text" placeholder="e.g. npx" />
+        <label for="mcp-add-command">命令</label>
+        <input id="mcp-add-command" type="text" placeholder="如 npx" />
       </div>
       <div class="modal-field">
-        <label for="mcp-add-args">Arguments</label>
-        <input id="mcp-add-args" type="text" placeholder="e.g. -y @modelcontextprotocol/server-github" />
+        <label for="mcp-add-args">参数</label>
+        <input id="mcp-add-args" type="text" placeholder="如 -y @modelcontextprotocol/server-github" />
       </div>`;
   }
   return `
     <div class="modal-field">
       <label for="mcp-add-url">URL</label>
-      <input id="mcp-add-url" type="text" placeholder="e.g. http://localhost:3000/sse" />
+      <input id="mcp-add-url" type="text" placeholder="如 http://localhost:3000/sse" />
     </div>`;
 }
 
@@ -60,26 +60,26 @@ export function showMcpAddModal(onAdded: () => void): void {
 
   body.innerHTML = `
     <div class="modal-field">
-      <label for="mcp-add-name">Name</label>
-      <input id="mcp-add-name" type="text" placeholder="e.g. github" />
+      <label for="mcp-add-name">名称</label>
+      <input id="mcp-add-name" type="text" placeholder="如 github" />
     </div>
     <div class="modal-field">
-      <label>Type</label>
+      <label>类型</label>
       <div class="mcp-add-type-row">
-        <label class="mcp-add-radio"><input type="radio" name="mcp-add-type" value="stdio" checked /> stdio (command)</label>
-        <label class="mcp-add-radio"><input type="radio" name="mcp-add-type" value="sse" /> sse (URL)</label>
+        <label class="mcp-add-radio"><input type="radio" name="mcp-add-type" value="stdio" checked /> stdio（命令）</label>
+        <label class="mcp-add-radio"><input type="radio" name="mcp-add-type" value="sse" /> sse（URL）</label>
       </div>
     </div>
     <div id="mcp-add-type-fields">${renderTypeFields('stdio')}</div>
     <div class="modal-field">
-      <label for="mcp-add-env">Environment Variables <span class="mcp-add-hint">(optional, KEY=VALUE per line)</span></label>
+      <label for="mcp-add-env">环境变量 <span class="mcp-add-hint">（可选，每行一个 KEY=VALUE）</span></label>
       <textarea id="mcp-add-env" class="mcp-add-env-textarea" rows="3" placeholder="GITHUB_TOKEN=ghp_..."></textarea>
     </div>
     <div class="modal-field">
-      <label>Scope</label>
+      <label>作用域</label>
       <div class="mcp-add-type-row">
-        <label class="mcp-add-radio"><input type="radio" name="mcp-add-scope" value="user" checked /> User (global)</label>
-        <label class="mcp-add-radio"><input type="radio" name="mcp-add-scope" value="project" /> Project</label>
+        <label class="mcp-add-radio"><input type="radio" name="mcp-add-scope" value="user" checked /> 用户（全局）</label>
+        <label class="mcp-add-radio"><input type="radio" name="mcp-add-scope" value="project" /> 项目</label>
       </div>
     </div>
     <div id="mcp-add-error" class="modal-error" style="display:none"></div>`;
@@ -122,7 +122,7 @@ function showError(overlay: HTMLElement, msg: string): void {
 
 async function submit(overlay: HTMLElement): Promise<void> {
   const name = (overlay.querySelector('#mcp-add-name') as HTMLInputElement).value.trim();
-  if (!name) { showError(overlay, 'Name is required'); return; }
+  if (!name) { showError(overlay, '名称为必填项'); return; }
 
   const type = (overlay.querySelector('input[name="mcp-add-type"]:checked') as HTMLInputElement).value;
   const scope = (overlay.querySelector('input[name="mcp-add-scope"]:checked') as HTMLInputElement).value as 'user' | 'project';
@@ -131,12 +131,12 @@ async function submit(overlay: HTMLElement): Promise<void> {
 
   if (type === 'stdio') {
     const command = (overlay.querySelector('#mcp-add-command') as HTMLInputElement).value.trim();
-    if (!command) { showError(overlay, 'Command is required'); return; }
+    if (!command) { showError(overlay, '命令为必填项'); return; }
     const argsStr = (overlay.querySelector('#mcp-add-args') as HTMLInputElement).value.trim();
     config = { command, args: argsStr ? argsStr.split(/\s+/) : [] };
   } else {
     const url = (overlay.querySelector('#mcp-add-url') as HTMLInputElement).value.trim();
-    if (!url) { showError(overlay, 'URL is required'); return; }
+    if (!url) { showError(overlay, 'URL 为必填项'); return; }
     config = { url };
   }
 
@@ -147,7 +147,7 @@ async function submit(overlay: HTMLElement): Promise<void> {
       const trimmed = line.trim();
       if (!trimmed) continue;
       const eqIdx = trimmed.indexOf('=');
-      if (eqIdx === -1) { showError(overlay, `Invalid env var: ${trimmed}`); return; }
+      if (eqIdx === -1) { showError(overlay, `无效的环境变量：${trimmed}`); return; }
       env[trimmed.slice(0, eqIdx)] = trimmed.slice(eqIdx + 1);
     }
     if (Object.keys(env).length > 0) config.env = env;
@@ -155,13 +155,13 @@ async function submit(overlay: HTMLElement): Promise<void> {
 
   const projectPath = scope === 'project' ? appState.activeProject?.path : undefined;
   if (scope === 'project' && !projectPath) {
-    showError(overlay, 'No active project for project scope');
+    showError(overlay, '项目作用域需要一个当前活动项目');
     return;
   }
 
   const result = await window.vibeyard.mcp.addServer(name, config, scope, projectPath);
   if (!result.success) {
-    showError(overlay, result.error || 'Failed to add server');
+    showError(overlay, result.error || '添加服务器失败');
     return;
   }
 

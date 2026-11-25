@@ -22,8 +22,8 @@ export const createTeamWidget: WidgetFactory = (host) => {
 
   const openTabBtn = document.createElement('button');
   openTabBtn.className = 'widget-team-add-btn';
-  openTabBtn.textContent = 'Open Team tab';
-  openTabBtn.title = 'Open the full Team tab';
+  openTabBtn.textContent = '打开团队标签页';
+  openTabBtn.title = '打开完整团队标签页';
   openTabBtn.addEventListener('click', () => {
     appState.openTeamTab(host.projectId);
   });
@@ -37,14 +37,14 @@ export const createTeamWidget: WidgetFactory = (host) => {
 
   function render(): void {
     const members = appState.team.members;
-    countLabel.textContent = members.length === 1 ? '1 member' : `${members.length} members`;
+    countLabel.textContent = `${members.length} 名成员`;
 
     grid.innerHTML = '';
 
     if (members.length === 0) {
       grid.appendChild(createWidgetEmpty(
-        'No team members yet.',
-        'Open Team tab',
+        '暂无团队成员。',
+        '打开团队标签页',
         () => appState.openTeamTab(host.projectId),
       ));
       return;
@@ -120,7 +120,7 @@ function buildCard(member: TeamMember, projectId: string): HTMLElement {
 
   const sessionsBtn = document.createElement('button');
   sessionsBtn.className = 'btn-secondary btn-sm widget-team-card-btn';
-  sessionsBtn.textContent = 'Sessions';
+  sessionsBtn.textContent = '会话';
   sessionsBtn.addEventListener('click', () => showMemberSessionsModal(member, projectId));
   actions.appendChild(sessionsBtn);
 
@@ -134,11 +134,11 @@ function buildChatControl(projectId: string, member: TeamMember): HTMLElement {
 
   const chatBtn = document.createElement('button');
   chatBtn.className = 'btn-primary btn-sm';
-  chatBtn.textContent = 'Chat';
+  chatBtn.textContent = '聊天';
 
   if (teamProviders.length === 0) {
     chatBtn.disabled = true;
-    chatBtn.title = 'No installed CLI supports team personas. Install Claude or Codex.';
+    chatBtn.title = '已安装的 CLI 均不支持团队角色，请安装 Claude 或 Codex。';
     return chatBtn;
   }
 
@@ -152,7 +152,7 @@ function buildChatControl(projectId: string, member: TeamMember): HTMLElement {
 
   const chevronBtn = document.createElement('button');
   chevronBtn.className = 'btn-primary btn-sm widget-team-card-chat-dropdown';
-  chevronBtn.setAttribute('aria-label', 'Chat with another provider');
+  chevronBtn.setAttribute('aria-label', '使用其他模型聊天');
   chevronBtn.setAttribute('aria-haspopup', 'menu');
   chevronBtn.textContent = '▼';
   chevronBtn.addEventListener('click', (e) => {

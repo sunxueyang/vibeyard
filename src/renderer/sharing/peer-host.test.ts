@@ -179,7 +179,7 @@ describe('startShare', () => {
     lastDc!.onopen?.();
     deliver({ type: 'auth-response', response: 'wrong' });
     await new Promise((r) => setTimeout(r, 0));
-    expect(authFailed).toHaveBeenCalledWith('Passphrase mismatch');
+    expect(authFailed).toHaveBeenCalledWith('PIN 码不匹配');
     expect(isSharing('s1')).toBe(false);
   });
 
@@ -190,7 +190,7 @@ describe('startShare', () => {
     handle.onAuthFailed(authFailed);
     lastDc!.onopen?.();
     vi.advanceTimersByTime(10_000);
-    expect(authFailed).toHaveBeenCalledWith('Authentication timed out');
+    expect(authFailed).toHaveBeenCalledWith('认证超时');
     expect(isSharing('s1')).toBe(false);
   });
 

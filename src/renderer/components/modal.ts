@@ -52,7 +52,7 @@ export function closeModal(): void {
   cleanup();
 }
 
-const DEFAULT_CONFIRM_LABEL = 'Create';
+const DEFAULT_CONFIRM_LABEL = '创建';
 
 export interface ModalOptions {
   confirmLabel?: string;
@@ -78,7 +78,7 @@ export function showModal(
   titleEl.textContent = title;
   btnConfirm.textContent = options?.confirmLabel ?? DEFAULT_CONFIRM_LABEL;
   bodyEl.innerHTML = '';
-  btnCancel.textContent = 'Cancel';
+  btnCancel.textContent = '取消';
   resetFooter();
 
   for (const field of fields) {
@@ -206,8 +206,8 @@ export function showConfirmDialog(
 ): void {
   titleEl.textContent = title;
   bodyEl.innerHTML = '';
-  btnConfirm.textContent = options.confirmLabel ?? 'Confirm';
-  btnCancel.textContent = options.cancelLabel ?? 'Cancel';
+  btnConfirm.textContent = options.confirmLabel ?? '确认';
+  btnCancel.textContent = options.cancelLabel ?? '取消';
   resetFooter();
 
   const messageEl = document.createElement('div');
@@ -270,7 +270,7 @@ export function showPropertiesDialog(
 ): void {
   titleEl.textContent = title;
   bodyEl.innerHTML = '';
-  btnConfirm.textContent = 'OK';
+  btnConfirm.textContent = '确定';
   resetFooter();
   btnCancel.style.display = 'none';
 
@@ -320,7 +320,7 @@ export function showConfirmModal(
   onConfirm: () => void,
   options?: { confirmLabel?: string; danger?: boolean }
 ): void {
-  const label = options?.confirmLabel ?? 'Delete';
+  const label = options?.confirmLabel ?? '删除';
   const fields: FieldDef[] = [];
 
   showModal(title, fields, () => {

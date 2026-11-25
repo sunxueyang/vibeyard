@@ -218,7 +218,7 @@ function appendEmpty(container: HTMLElement, depth: number): void {
   const empty = document.createElement('div');
   empty.className = 'file-tree-empty';
   empty.style.paddingLeft = `${20 + depth * 14}px`;
-  empty.textContent = '(empty)';
+  empty.textContent = '（空）';
   container.appendChild(empty);
 }
 
@@ -275,14 +275,14 @@ function createEntry(projectId: string, depth: number, entry: DirEntry): HTMLEle
     e.stopPropagation();
     showContextMenu(e.clientX, e.clientY, [
       {
-        label: 'Open in Browser',
+        label: '在浏览器中打开',
         action: () => {
           appState.addBrowserTabSession(projectId, pathToFileURL(entry.path));
         },
       },
       showInFolderMenuOption(entry),
       {
-        label: 'Properties',
+        label: '属性',
         action: () => { showFileProperties(entry); },
       },
       deleteMenuOption(entry),
@@ -391,23 +391,23 @@ async function showFileProperties(entry: DirEntry): Promise<void> {
   ]);
 
   const rows: Array<{ label: string; value: string; mono?: boolean }> = [];
-  rows.push({ label: 'Path', value: entry.path, mono: true });
-  rows.push({ label: 'Type', value: fileTypeLabel(entry.name) });
-  rows.push({ label: 'Size', value: statResult.ok ? formatBytes(statResult.size) : '—' });
-  rows.push({ label: 'Modified', value: statResult.ok ? formatMtime(statResult.mtimeMs) : '—' });
+  rows.push({ label: '路径', value: entry.path, mono: true });
+  rows.push({ label: '类型', value: fileTypeLabel(entry.name) });
+  rows.push({ label: '大小', value: statResult.ok ? formatBytes(statResult.size) : '—' });
+  rows.push({ label: '修改时间', value: statResult.ok ? formatMtime(statResult.mtimeMs) : '—' });
 
   if (readResult.ok) {
     const lines = readResult.content.length === 0 ? 0 : readResult.content.split('\n').length;
-    rows.push({ label: 'Lines', value: lines.toLocaleString() });
+    rows.push({ label: '行数', value: lines.toLocaleString() });
     if (readResult.content.length > TOKEN_COUNT_MAX_CHARS) {
-      rows.push({ label: 'Tokens', value: 'too large to count' });
+      rows.push({ label: 'Tokens', value: '文件过大，无法统计' });
     } else {
       rows.push({ label: 'Tokens', value: `~ ${estimateTokens(readResult.content).toLocaleString()}` });
     }
   } else {
-    const why = readResult.reason === 'binary' ? 'binary file' : 'unreadable';
-    rows.push({ label: 'Lines', value: `— (${why})` });
-    rows.push({ label: 'Tokens', value: `— (${why})` });
+    const why = readResult.reason === 'binary' ? '二进制文件' : '不可读取';
+    rows.push({ label: '行数', value: `—（${why}）` });
+    rows.push({ label: 'Tokens', value: `—（${why}）` });
   }
 
   showPropertiesDialog(entry.name, rows);
@@ -428,22 +428,22 @@ function formatBytes(n: number): string {
 function formatMtime(ms: number): string {
   const diffSec = Math.max(1, Math.floor((Date.now() - ms) / 1000));
   let rel: string;
-  if (diffSec < 60) rel = `${diffSec}s ago`;
-  else if (diffSec < 3600) rel = `${Math.floor(diffSec / 60)}m ago`;
-  else if (diffSec < 86400) rel = `${Math.floor(diffSec / 3600)}h ago`;
-  else if (diffSec < 86400 * 30) rel = `${Math.floor(diffSec / 86400)}d ago`;
-  else rel = `${Math.floor(diffSec / (86400 * 30))}mo ago`;
+  if (diffSec < 60) rel = `${diffSec} 秒前`;
+  else if (diffSec < 3600) rel = `${Math.floor(diffSec / 60)} 分钟前`;
+  else if (diffSec < 86400) rel = `${Math.floor(diffSec / 3600)} 小时前`;
+  else if (diffSec < 86400 * 30) rel = `${Math.floor(diffSec / 86400)} 天前`;
+  else rel = `${Math.floor(diffSec / (86400 * 30))} 个月前`;
   return `${rel} · ${new Date(ms).toLocaleString()}`;
 }
 
 function fileTypeLabel(name: string): string {
   const dot = name.lastIndexOf('.');
-  if (dot <= 0 || dot === name.length - 1) return '(no ext)';
+  if (dot <= 0 || dot === name.length - 1) return '（无扩展名）';
   return name.slice(dot + 1).toLowerCase();
 }
 
 /** Name of the OS file manager, used in the reveal menu labels. Exported for tests. */
-export const FILE_MANAGER = isMac ? 'Finder' : isWin ? 'File Explorer' : 'File Manager';
+export const FILE_MANAGER = isMac ? 'Finder' : isWin ? '文件资源管理器' : '文件管理器';
 
 /**
  * A folder opens in the file manager showing its own contents; a file is
@@ -451,11 +451,11 @@ export const FILE_MANAGER = isMac ? 'Finder' : isWin ? 'File Explorer' : 'File M
  */
 function showInFolderMenuOption(entry: DirEntry): MenuOption {
   return {
-    label: `${entry.isDirectory ? 'Open' : 'Reveal'} in ${FILE_MANAGER}`,
+    label: `${entry.isDirectory ? '打开' : '显示'}位置：${FILE_MANAGER}`,
     action: async () => {
       const result = await window.vibeyard.fs.showInFolder(entry.path);
       if (!result.ok) {
-        console.warn(`Failed to show ${entry.path} in ${FILE_MANAGER}: ${result.error ?? 'unknown error'}`);
+        console.warn(`无法在 ${FILE_MANAGER} 中显示 ${entry.path}：${result.error ?? '未知错误'}`);
       }
     },
   };
@@ -463,27 +463,27 @@ function showInFolderMenuOption(entry: DirEntry): MenuOption {
 
 function deleteMenuOption(entry: DirEntry): MenuOption {
   return {
-    label: 'Delete',
+    label: '删除',
     danger: true,
     action: () => confirmAndTrash(entry),
   };
 }
 
 function confirmAndTrash(entry: DirEntry): void {
-  const kind = entry.isDirectory ? 'folder' : 'file';
+  const kind = entry.isDirectory ? '文件夹' : '文件';
   const message = entry.isDirectory
-    ? `Move "${entry.name}" and its contents to the Trash?`
-    : `Move "${entry.name}" to the Trash?`;
+    ? `确定将“${entry.name}”及其全部内容移至回收站吗？`
+    : `确定将“${entry.name}”移至回收站吗？`;
   showConfirmModal(
-    `Delete ${kind}`,
+    `删除${kind}`,
     message,
     async () => {
       const result = await window.vibeyard.fs.trashItem(entry.path);
       if (!result.ok) {
-        console.warn(`Failed to trash ${entry.path}: ${result.error ?? 'unknown error'}`);
+        console.warn(`无法将 ${entry.path} 移至回收站：${result.error ?? '未知错误'}`);
       }
     },
-    { confirmLabel: 'Delete', danger: true },
+    { confirmLabel: '删除', danger: true },
   );
 }
 

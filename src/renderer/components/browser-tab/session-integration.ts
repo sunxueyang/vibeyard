@@ -96,7 +96,7 @@ export async function deliverDraw(instance: BrowserTabInstance, session: Session
   hideDrawError(instance);
   const imagePath = await captureScreenshotPath(instance);
   if (!imagePath) {
-    showDrawError(instance, 'Failed to capture screenshot. Try again.');
+    showDrawError(instance, '截图失败，请重试。');
     return;
   }
 

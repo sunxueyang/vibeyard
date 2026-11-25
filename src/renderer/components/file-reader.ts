@@ -171,7 +171,7 @@ async function loadFile(instance: FileReaderInstance, sessionId: string): Promis
   instance.unsupported = false;
   hideTokenBadge(instance);
   const body = instance.element.querySelector('.file-reader-body')!;
-  showFileReaderMessage(body, 'Loading...');
+  showFileReaderMessage(body, '加载中…');
 
   try {
     const fullPath = resolveFilePath(instance);
@@ -179,7 +179,7 @@ async function loadFile(instance: FileReaderInstance, sessionId: string): Promis
     if (instance.kind === 'image') {
       const result = await window.vibeyard.fs.readImage(fullPath);
       if (!result) {
-        showFileReaderMessage(body, 'Failed to load file');
+        showFileReaderMessage(body, '加载文件失败');
         return;
       }
       instance.imageDataUrl = result.dataUrl;
@@ -191,7 +191,7 @@ async function loadFile(instance: FileReaderInstance, sessionId: string): Promis
     if (!result.ok) {
       showFileReaderMessage(
         body,
-        result.reason === 'binary' ? 'Unable to preview this file' : 'Failed to load file',
+        result.reason === 'binary' ? '无法预览此文件' : '加载文件失败',
       );
       instance.unsupported = true;
       instance.loaded = true;
@@ -205,7 +205,7 @@ async function loadFile(instance: FileReaderInstance, sessionId: string): Promis
       scrollToLine(instance);
     }
   } catch {
-    showFileReaderMessage(body, 'Failed to load file');
+    showFileReaderMessage(body, '加载文件失败');
     instance.unsupported = true;
   }
 }
@@ -218,10 +218,10 @@ function updateTokenBadge(instance: FileReaderInstance, content: string): void {
   const badge = getTokenBadge(instance);
   if (!badge) return;
   if (content.length > TOKEN_COUNT_MAX_CHARS) {
-    badge.textContent = 'too large to count';
+    badge.textContent = '过大，无法统计';
   } else {
     const count = estimateTokens(content);
-    badge.textContent = `~ ${count.toLocaleString()} tokens`;
+    badge.textContent = `约 ${count.toLocaleString()} tokens`;
   }
   badge.style.display = '';
 }
@@ -272,12 +272,12 @@ export function createFileReaderPane(sessionId: string, filePath: string, target
 
   const badge = document.createElement('span');
   badge.className = 'file-reader-badge';
-  badge.textContent = 'READ-ONLY';
+  badge.textContent = '只读';
 
   const tokenBadge = document.createElement('span');
   tokenBadge.className = 'file-reader-token-badge';
   tokenBadge.style.display = 'none';
-  tokenBadge.title = 'Rough token estimate (provider-agnostic)';
+  tokenBadge.title = '粗略 token 估算（与模型厂商无关）';
 
   header.appendChild(pathSpan);
   header.appendChild(badge);
@@ -295,8 +295,8 @@ export function createFileReaderPane(sessionId: string, filePath: string, target
   if (isHtmlFile(filePath)) {
     const openBtn = document.createElement('button');
     openBtn.className = 'search-toggle-btn file-reader-open-browser';
-    openBtn.textContent = 'Open in Browser';
-    openBtn.title = 'Open this file in the embedded browser';
+    openBtn.textContent = '在浏览器中打开';
+    openBtn.title = '在内置浏览器中打开此文件';
     openBtn.addEventListener('click', () => {
       const project = appState.activeProject;
       if (project) {
@@ -312,13 +312,13 @@ export function createFileReaderPane(sessionId: string, filePath: string, target
 
     const renderedBtn = document.createElement('button');
     renderedBtn.className = 'search-toggle-btn active';
-    renderedBtn.textContent = 'Rendered';
-    renderedBtn.title = 'Rendered Markdown';
+    renderedBtn.textContent = '渲染';
+    renderedBtn.title = '渲染后的 Markdown';
 
     const rawBtn = document.createElement('button');
     rawBtn.className = 'search-toggle-btn';
-    rawBtn.textContent = 'Raw';
-    rawBtn.title = 'Raw Text';
+    rawBtn.textContent = '原文';
+    rawBtn.title = '原始文本';
 
     const setMode = (mode: 'raw' | 'rendered') => {
       instance.viewMode = mode;
@@ -336,6 +336,19 @@ export function createFileReaderPane(sessionId: string, filePath: string, target
     toggleGroup.appendChild(rawBtn);
     header.appendChild(toggleGroup);
   }
+
+  // Close button: remove this preview session. renderLayout then reflows the
+  // CLI swarm grid so it fills the freed space. Re-clicking the file resource
+  // (attachment row / tab) calls addFileReaderSession and reopens the preview.
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'file-reader-close';
+  closeBtn.title = '关闭预览';
+  closeBtn.textContent = '✕';
+  closeBtn.addEventListener('click', () => {
+    const owner = appState.findSessionWithProject(sessionId);
+    if (owner) appState.removeSession(owner.project.id, sessionId);
+  });
+  header.appendChild(closeBtn);
 
   el.appendChild(header);
 
@@ -465,12 +478,12 @@ export function showGoToLineBar(sessionId: string): void {
   const input = document.createElement('input');
   input.type = 'number';
   input.min = '1';
-  input.placeholder = 'Go to line...';
+  input.placeholder = '跳转到行…';
 
   const closeBtn = document.createElement('button');
   closeBtn.className = 'search-nav-btn search-close-btn';
   closeBtn.textContent = '\u2715';
-  closeBtn.title = 'Close (Escape)';
+  closeBtn.title = '关闭（Escape）';
 
   bar.appendChild(input);
   bar.appendChild(closeBtn);

@@ -45,7 +45,7 @@ export function createRemoteTerminalPane(
   modeLabel.textContent = `Remote \u00b7 ${mode === 'readonly' ? 'Read-only' : 'Read-write'}`;
   const disconnectBtn = document.createElement('button');
   disconnectBtn.className = 'remote-disconnect-btn';
-  disconnectBtn.textContent = 'Disconnect';
+  disconnectBtn.textContent = '断开连接';
   disconnectBtn.addEventListener('click', () => {
     // Import dynamically to avoid circular dependency
     import('../sharing/share-manager.js').then(({ disconnectRemoteSession }) => {
@@ -163,7 +163,7 @@ export function showRemoteEndOverlay(sessionId: string): void {
   overlay.className = 'terminal-exit-overlay';
   overlay.innerHTML = `
     <div class="exit-message">
-      <span>Remote session ended</span>
+      <span>远程会话已结束</span>
     </div>
   `;
   instance.element.appendChild(overlay);

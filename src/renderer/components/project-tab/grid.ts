@@ -117,7 +117,7 @@ export function createProjectTabGrid(opts: ProjectTabGridOptions): ProjectTabGri
 
     const refreshBtn = document.createElement('button');
     refreshBtn.className = 'widget-action-btn';
-    refreshBtn.title = 'Refresh';
+    refreshBtn.title = '刷新';
     refreshBtn.textContent = '↻';
     refreshBtn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -129,7 +129,7 @@ export function createProjectTabGrid(opts: ProjectTabGridOptions): ProjectTabGri
     if (meta?.hasSettings) {
       const gear = document.createElement('button');
       gear.className = 'widget-action-btn';
-      gear.title = 'Settings';
+      gear.title = '设置';
       gear.textContent = '⚙';
       gear.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -140,7 +140,7 @@ export function createProjectTabGrid(opts: ProjectTabGridOptions): ProjectTabGri
 
     const removeBtn = document.createElement('button');
     removeBtn.className = 'widget-action-btn widget-action-remove';
-    removeBtn.title = 'Remove widget';
+    removeBtn.title = '移除组件';
     removeBtn.textContent = '×';
     removeBtn.addEventListener('click', (e) => {
       e.stopPropagation();

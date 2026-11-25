@@ -95,7 +95,7 @@ function createOverlay(): void {
   input = document.createElement('input');
   input.className = 'session-palette-input';
   input.type = 'text';
-  input.placeholder = 'Search all sessions...';
+  input.placeholder = '搜索所有会话…';
   input.addEventListener('input', onInput);
   input.addEventListener('keydown', onKeydown);
 
@@ -107,7 +107,7 @@ function createOverlay(): void {
 
   const footer = document.createElement('div');
   footer.className = 'session-palette-footer';
-  for (const [keys, label] of [['↑↓', 'navigate'], ['↵', 'open session'], ['Esc', 'close']] as [string, string][]) {
+  for (const [keys, label] of [['↑↓', '导航'], ['↵', '打开会话'], ['Esc', '关闭']] as [string, string][]) {
     const span = document.createElement('span');
     const kbd = document.createElement('kbd');
     kbd.textContent = keys;
@@ -141,7 +141,7 @@ async function searchSessions(): Promise<void> {
   resultsList.innerHTML = '';
   const loading = document.createElement('div');
   loading.className = 'session-palette-empty';
-  loading.textContent = 'Searching\u2026';
+  loading.textContent = '搜索中…';
   resultsList.appendChild(loading);
 
   let raw: DeepSearchResult[] = [];
@@ -177,7 +177,7 @@ function renderResults(): void {
     const empty = document.createElement('div');
     empty.className = 'session-palette-empty';
     const query = input?.value.trim() ?? '';
-    empty.textContent = query.length >= 2 ? 'No sessions found' : 'Type 2+ characters to search all sessions';
+    empty.textContent = query.length >= 2 ? '未找到会话' : '输入 2 个以上字符以搜索所有会话';
     resultsList.appendChild(empty);
     return;
   }
@@ -213,7 +213,7 @@ function renderResults(): void {
     const badge = document.createElement('span');
     badge.className = `session-palette-badge${isCurrentProject ? ' current' : ''}`;
     const projectName = deriveProjectName(r.projectCwd, r.projectSlug);
-    badge.textContent = isCurrentProject ? 'current project' : projectName;
+    badge.textContent = isCurrentProject ? '当前项目' : projectName;
     nameRow.appendChild(badge);
 
     const meta = document.createElement('div');

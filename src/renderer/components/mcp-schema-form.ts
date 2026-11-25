@@ -51,7 +51,7 @@ export function renderSchemaForm(schema: JsonSchema): SchemaForm {
     } else if (type === 'object' || type === 'array') {
       const textarea = document.createElement('textarea');
       textarea.className = 'mcp-form-input mcp-form-json';
-      textarea.placeholder = `JSON ${type}`;
+      textarea.placeholder = `${type} 的 JSON`;
       textarea.rows = 3;
       if (prop.default !== undefined) textarea.value = JSON.stringify(prop.default, null, 2);
       field.appendChild(textarea);

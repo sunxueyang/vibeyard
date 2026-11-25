@@ -60,11 +60,11 @@ function showWhatsNewDialog(version: string, notes: ReleaseNotes): void {
     title: '',
     wide: true,
   });
-  titleEl.textContent = `What's New in v${version}`;
+  titleEl.textContent = `v${version} 新功能`;
   body.innerHTML = '';
   actions.innerHTML = '';
 
-  const confirmBtn = createModalButton('Got it', true);
+  const confirmBtn = createModalButton('知道了', true);
   actions.appendChild(confirmBtn);
 
   const container = document.createElement('div');
@@ -72,7 +72,7 @@ function showWhatsNewDialog(version: string, notes: ReleaseNotes): void {
 
   const dateEl = document.createElement('div');
   dateEl.className = 'whats-new-date';
-  dateEl.textContent = `Released ${notes.date}`;
+  dateEl.textContent = `发布于 ${notes.date}`;
   container.appendChild(dateEl);
 
   if (notes.features.length > 0) {

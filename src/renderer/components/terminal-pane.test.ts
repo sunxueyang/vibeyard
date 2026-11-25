@@ -241,7 +241,8 @@ function makeWindowStub() {
         create: vi.fn(),
       },
       git: { getRemoteUrl: vi.fn(async () => null) },
-      clipboard: { write: mockVibeyardClipboardWrite },
+      clipboard: { write: mockVibeyardClipboardWrite, saveClipboardImage: vi.fn(async () => ({ hasImage: false, filePath: null })) },
+      fs: { getDroppedFilePath: vi.fn((file: File) => (file as unknown as { path?: string }).path ?? '') },
       app: { openExternal: vi.fn() },
     },
   };
@@ -757,7 +758,7 @@ describe('profile label in status-line cost string', () => {
 
     const ind = instance.element.querySelector('.context-indicator')! as any;
     const label = ind.querySelector('.ssl-label')!;
-    expect(label.textContent).toBe('Context');
+    expect(label.textContent).toBe('上下文');
     // The label must be the first child, immediately before the meter.
     expect(ind.children[0]).toBe(label);
     expect(ind.children[1].className).toBe('ssl-meter');
@@ -776,15 +777,15 @@ describe('profile label in status-line cost string', () => {
 
     // Turn output climbs to 185...
     updateCostDisplay('pb-peak', { ...base, totalOutputTokens: 185 });
-    expect(io()).toBe('5000 in / 185 out');
+    expect(io()).toBe('5000 输入 / 185 输出');
 
     // ...then Claude reports the next turn's tiny starting value — display must not regress.
     updateCostDisplay('pb-peak', { ...base, totalOutputTokens: 2 });
-    expect(io()).toBe('5000 in / 185 out');
+    expect(io()).toBe('5000 输入 / 185 输出');
 
     // A genuinely higher value still ratchets the peak up.
     updateCostDisplay('pb-peak', { ...base, totalOutputTokens: 300 });
-    expect(io()).toBe('5000 in / 300 out');
+    expect(io()).toBe('5000 输入 / 300 输出');
   });
 
   it('ignores profiles belonging to a different provider', async () => {
@@ -933,7 +934,7 @@ describe('status rail is primed from restored cost/context', () => {
     const costDisplay = q(instance.element, '.cost-display');
     expect(q(costDisplay, '.ssl-model').textContent).toBe('Opus 5');
     expect(q(costDisplay, '.ssl-cost').textContent).toBe('$4.5619');
-    expect(q(costDisplay, '.ssl-io').textContent).toBe('150458 in / 1352 out');
+    expect(q(costDisplay, '.ssl-io').textContent).toBe('150458 输入 / 1352 输出');
   });
 
   it('leaves the context indicator empty for a brand-new session with nothing restored', async () => {

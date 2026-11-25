@@ -13,6 +13,10 @@ vi.mock('os', () => ({
 
 vi.mock('child_process', () => ({
   execSync: vi.fn(),
+  exec: vi.fn((...args: unknown[]) => {
+    const cb = args[args.length - 1] as (err: Error, stdout: string) => void;
+    cb(new Error('not found'), '');
+  }),
 }));
 
 vi.mock('../pty-manager', () => ({

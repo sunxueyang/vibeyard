@@ -42,10 +42,10 @@ beforeEach(() => {
   const project = appState.addProject('Test', '/test');
   project.board = {
     columns: [
-      { id: 'col-backlog', title: 'Backlog', order: 0, behavior: 'inbox' as const },
-      { id: 'col-ready', title: 'Ready', order: 1, behavior: 'none' as const },
-      { id: 'col-running', title: 'Running', order: 2, behavior: 'active' as const },
-      { id: 'col-done', title: 'Done', order: 3, behavior: 'terminal' as const },
+      { id: 'col-backlog', title: '待办', order: 0, behavior: 'inbox' as const },
+      { id: 'col-ready', title: '就绪', order: 1, behavior: 'none' as const },
+      { id: 'col-running', title: '运行中', order: 2, behavior: 'active' as const },
+      { id: 'col-done', title: '完成', order: 3, behavior: 'terminal' as const },
     ],
     tasks: [],
   };
@@ -63,17 +63,17 @@ describe('board-state', () => {
   describe('getColumnByBehavior', () => {
     it('finds inbox column', () => {
       const col = getColumnByBehavior('inbox');
-      expect(col?.title).toBe('Backlog');
+      expect(col?.title).toBe('待办');
     });
 
     it('finds active column', () => {
       const col = getColumnByBehavior('active');
-      expect(col?.title).toBe('Running');
+      expect(col?.title).toBe('运行中');
     });
 
     it('finds terminal column', () => {
       const col = getColumnByBehavior('terminal');
-      expect(col?.title).toBe('Done');
+      expect(col?.title).toBe('完成');
     });
   });
 

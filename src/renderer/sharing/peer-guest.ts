@@ -90,7 +90,7 @@ export function joinShare(offer: string, passphrase: string): { guestId: string;
         if (msg.ok) {
           guestPeer.authenticated = true;
         } else {
-          authFailedCb?.(msg.reason ?? 'Authentication failed');
+          authFailedCb?.(msg.reason ?? '认证失败');
           disconnectGuest(guestId);
         }
         return;

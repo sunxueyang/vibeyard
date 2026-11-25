@@ -259,16 +259,16 @@ describe('ShortcutManager', () => {
     const mgr = new ShortcutManager();
     const all = mgr.getAll();
     expect(all).toBeInstanceOf(Map);
-    expect(all.has('Sessions')).toBe(true);
-    expect(all.has('Panels')).toBe(true);
-    expect(all.has('Search & Help')).toBe(true);
+    expect(all.has('会话')).toBe(true);
+    expect(all.has('面板')).toBe(true);
+    expect(all.has('搜索与帮助')).toBe(true);
   });
 
   it('getAll entries have resolvedKeys property', async () => {
     const { ShortcutManager } = await import('./shortcuts');
     const mgr = new ShortcutManager();
     const all = mgr.getAll();
-    const sessions = all.get('Sessions')!;
+    const sessions = all.get('会话')!;
     expect(sessions.length).toBeGreaterThan(0);
     for (const entry of sessions) {
       expect(entry).toHaveProperty('resolvedKeys');
@@ -281,7 +281,7 @@ describe('ShortcutManager', () => {
     const { ShortcutManager } = await import('./shortcuts');
     const mgr = new ShortcutManager();
     const all = mgr.getAll();
-    const sessions = all.get('Sessions')!;
+    const sessions = all.get('会话')!;
     const newSession = sessions.find((s) => s.id === 'new-session');
     expect(newSession?.resolvedKeys).toBe('CmdOrCtrl+K');
   });

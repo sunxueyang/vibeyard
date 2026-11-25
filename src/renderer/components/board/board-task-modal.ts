@@ -85,7 +85,7 @@ export function showTaskModal(
   let currentProfileId: string = task?.profileId ?? '';
   const initialPlanMode = task?.planMode ?? (mode === 'create');
   const { row: planModeRow, checkbox: planModeCheckbox } =
-    createPlanModeRow('Plan mode', initialPlanMode);
+    createPlanModeRow('计划模式', initialPlanMode);
 
   showModal(title, fields, (values) => {
     const prompt = values.prompt?.trim() ?? '';
@@ -281,7 +281,7 @@ export function showTaskModal(
   const profileFieldDiv = document.createElement('div');
   profileFieldDiv.className = 'modal-field';
   const profileLabel = document.createElement('label');
-  profileLabel.textContent = 'Profile';
+  profileLabel.textContent = '配置文件';
   profileFieldDiv.appendChild(profileLabel);
 
   let profileSelect: CustomSelectInstance | null = null;
@@ -317,7 +317,7 @@ export function showTaskModal(
     // default profile is never listed twice (once as "Default (X)", once as "X").
     if (defaultProfile && currentProfileId === defaultProfile.id) currentProfileId = '';
     const options = [
-      { value: '', label: defaultProfile ? `Default (${defaultProfile.name})` : 'Default' },
+      { value: '', label: defaultProfile ? `默认（${defaultProfile.name}）` : '默认' },
       ...profiles
         .filter(p => p.id !== defaultProfile?.id)
         .map(p => ({ value: p.id, label: p.name })),

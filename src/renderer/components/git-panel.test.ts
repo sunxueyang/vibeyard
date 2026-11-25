@@ -8,10 +8,12 @@ vi.mock('../state.js', () => ({ appState: { on: vi.fn(), activeProjectId: null, 
 vi.mock('../git-status.js', () => ({
   onChange: vi.fn(),
   gitChangeCount: vi.fn(),
+  getGitStatus: vi.fn(() => ({ isGitRepo: true })),
   getActiveGitPath: vi.fn(),
   getWorktrees: vi.fn(),
   setActiveWorktree: vi.fn(),
   onWorktreeChange: vi.fn(),
+  refreshGitStatus: vi.fn(),
 }));
 vi.mock('../session-activity.js', () => ({ onChange: vi.fn() }));
 vi.mock('./file-viewer.js', () => ({ showFileViewer: vi.fn() }));

@@ -67,6 +67,6 @@ describe('bigInitialContext analyzer', () => {
 
   it('mentions impact on response quality in the description', () => {
     const results = bigInitialContext.analyze(makeSnapshot(30));
-    expect(results[0].description).toMatch(/response quality|cost efficiency/);
+    expect(results[0].description).toMatch(/响应质量|成本效率/);
   });
 });

@@ -91,6 +91,12 @@ import { quickNewSession } from './tab-bar.js';
 import { isCliSession } from '../session-utils.js';
 import { isInRelativeOrder } from './pane-order.js';
 import { shouldFocusPane, type PaneFocusMemo } from './pane-focus.js';
+import {
+  getPreviewColumn,
+  getPreviewWidth,
+  isPreviewHidden,
+  setPreviewHidden,
+} from './preview-column.js';
 
 const container = document.getElementById('terminal-container')!;
 
@@ -144,6 +150,9 @@ function removeSwarmWrapper(): void {
 
 let lastFocusedPane: PaneFocusMemo | null = null;
 
+let resizeObserver: ResizeObserver | null = null;
+let resizeRaf = 0;
+
 /** Move DOM focus into a pane, if this render is one that has any business doing so. */
 function focusPane(project: ProjectRecord, sessionId: string): void {
   // Don't steal focus from an active tab rename input
@@ -170,10 +179,23 @@ export function initSplitLayout(): void {
     if (project?.layout.mode === 'swarm') updateSwarmPaneStyles(project);
   });
 
-  // Refit on window resize
-  window.addEventListener('resize', () => {
-    requestAnimationFrame(fitAllVisible);
-  });
+  // Coalesce rapid resize events (maximize/minimize, drag-resize) into one refit.
+  const scheduleFit = (): void => {
+    if (resizeRaf !== 0) cancelAnimationFrame(resizeRaf);
+    resizeRaf = requestAnimationFrame(() => {
+      resizeRaf = 0;
+      fitAllVisible();
+    });
+  };
+
+  // A ResizeObserver on the container catches every size change — window
+  // maximize/minimize, sidebar toggles, and panel resizes — not just the
+  // window-level resize event.
+  if (typeof ResizeObserver !== 'undefined') {
+    resizeObserver = new ResizeObserver(scheduleFit);
+    resizeObserver.observe(container);
+  }
+  window.addEventListener('resize', scheduleFit);
 
   // Click delegation for swarm mode: clicking a dimmed pane makes it active
   container.addEventListener('mousedown', (e) => {
@@ -478,23 +500,35 @@ function renderSwarmMode(project: ProjectRecord): void {
   const rows = Math.ceil(count / cols);
 
   const activeSession = project.sessions.find(s => s.id === project.activeSessionId);
+
+  // Explicitly activating a non-CLI (preview) session always reveals it,
+  // clearing any hide state set by the preview column's hide button.
+  if (activeSession && !isCliSession(activeSession)) {
+    setPreviewHidden(false);
+  }
+
   const nonCliSession = (activeSession && !isCliSession(activeSession))
     ? activeSession
     : [...project.sessions].reverse().find(s => !isCliSession(s));
 
   const hasInspector = isInspectorOpen();
+  // The preview column is laid out only when a non-CLI pane exists and the user
+  // hasn't hidden it. A hidden pane keeps its session/tab but takes no width.
+  const showPreview = !!nonCliSession && !isPreviewHidden();
 
   setContainerClass('swarm-mode');
 
-  const needsWrapper = nonCliSession || hasInspector;
+  const needsWrapper = showPreview || hasInspector;
 
   if (needsWrapper) {
     const colParts: string[] = ['1fr'];
-    if (nonCliSession) colParts.push('1fr');
+    if (showPreview) colParts.push('var(--preview-width, 480px)');
     if (hasInspector) colParts.push('var(--inspector-width, 350px)');
 
     container.style.gridTemplateColumns = colParts.join(' ');
     container.style.gridTemplateRows = '1fr';
+    // Keep the grid track in sync with the (possibly user-resized) width.
+    container.style.setProperty('--preview-width', getPreviewWidth() + 'px');
 
     // Reuse the wrapper across renders: rebuilding it would detach — and so blur
     // and de-select — every pane inside it on every state change.
@@ -510,17 +544,30 @@ function renderSwarmMode(project: ProjectRecord): void {
     showPanes(project, gridWrapper);
     appendEmptyCells(cols * rows - count, gridWrapper);
 
-    if (nonCliSession) attachNonCliPane(nonCliSession, container, true);
+    let previewCol: HTMLElement | null = null;
+    if (showPreview && nonCliSession) {
+      previewCol = getPreviewColumn();
+      // Attach the non-CLI pane inside the preview column (resize + hide live there).
+      attachNonCliPane(nonCliSession, previewCol, true);
+      if (previewCol.parentElement !== container) container.appendChild(previewCol);
+    } else {
+      // Preview hidden: detach a previously placed column so it consumes no width.
+      const existing = container.querySelector<HTMLElement>('.preview-column');
+      if (existing) existing.remove();
+    }
 
-    // Grid placement follows DOM order: wrapper, then the non-CLI pane, then the
-    // inspector. Hidden panes are display:none and stay wherever they were left.
+    // Grid placement follows DOM order: wrapper, then the preview column, then
+    // the inspector. Hidden panes are display:none and stay wherever they were left.
     ensurePaneOrder(container, [
       gridWrapper,
-      nonCliSession ? paneElementFor(nonCliSession) : null,
+      previewCol,
       hasInspector ? container.querySelector<HTMLElement>('#session-inspector') : null,
     ]);
   } else {
     removeSwarmWrapper();
+    // No preview visible: drop any previously placed preview column.
+    const existing = container.querySelector<HTMLElement>('.preview-column');
+    if (existing) existing.remove();
     container.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
     container.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
     showPanes(project);
@@ -539,7 +586,7 @@ function appendEmptyCells(count: number, target: HTMLElement): void {
     const btn = document.createElement('button');
     btn.className = 'swarm-empty-add-btn';
     btn.textContent = '+';
-    btn.title = 'New session';
+    btn.title = '新建会话';
     btn.addEventListener('click', () => quickNewSession());
 
     cell.appendChild(btn);
@@ -567,24 +614,24 @@ function showEmptyState(project: ProjectRecord | undefined): void {
   el.className = 'empty-state';
   if (!project) {
     el.innerHTML = `
-      <div>No project selected</div>
-      <div class="hint">Create a project with the + button in the sidebar</div>
+      <div>未选择项目</div>
+      <div class="hint">点击侧边栏中的 + 按钮创建项目</div>
     `;
   } else {
     const title = document.createElement('div');
     title.className = 'empty-state-title';
-    title.textContent = 'Ready when you are';
+    title.textContent = '随时为你准备';
 
     const hint = document.createElement('div');
     hint.className = 'hint';
     const name = document.createElement('span');
     name.className = 'empty-state-project';
     name.textContent = project.name;
-    hint.append('No sessions running in ', name, ' yet.');
+    hint.append('当前项目 ', name, ' 还没有运行中的会话。');
 
     const cta = document.createElement('button');
     cta.className = 'btn-primary empty-state-cta';
-    cta.innerHTML = `${plusIcon}<span>Start a session</span>`;
+    cta.innerHTML = `${plusIcon}<span>开始会话</span>`;
     cta.addEventListener('click', () => quickNewSession());
 
     el.append(title, hint, cta);

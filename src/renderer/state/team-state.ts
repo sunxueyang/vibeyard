@@ -115,7 +115,7 @@ export async function syncAgentInstall(
   try {
     await api.installAgent(member.agentSlug!, buildAgentMarkdown(member.agentSlug!, member));
   } catch (err) {
-    console.warn('installAgent failed:', err);
+    console.warn('安装 Agent 失败：', err);
   }
 }
 
@@ -140,7 +140,7 @@ export async function reconcileAgent(
     persistSlug();
     if (slug) {
       try { await api.removeAgent(slug); }
-      catch (err) { console.warn('removeAgent failed:', err); }
+      catch (err) { console.warn('移除 Agent 失败：', err); }
     }
     return;
   }
@@ -154,6 +154,6 @@ export async function reconcileAgent(
 
 export function fireAndForgetRemoveAgent(api: AgentApi, slug: string): void {
   void api.removeAgent(slug).catch((err) => {
-    console.warn('removeAgent failed:', err);
+    console.warn('移除 Agent 失败：', err);
   });
 }

@@ -19,7 +19,7 @@ function handleSplitAction(alert: LargeFileAlert): void {
   const filename = basename(alert.filePath);
   const prompt = `The file ${alert.filePath} is too large and exceeds the AI context read limit. Please analyze it and split it into smaller, focused modules. Preserve all existing functionality.`;
 
-  const session = appState.addPlanSession(project.id, `Split ${filename}`);
+  const session = appState.addPlanSession(project.id, `拆分 ${filename}`);
   if (!session) return;
 
   removeAlertBanner();
@@ -34,9 +34,9 @@ function showLargeFileBanner(alert: LargeFileAlert): void {
   showAlertBanner({
     className: 'insight-alert-info',
     icon: '\u26A0',
-    message: `"${filename}" is too large for AI to read in one pass. Consider splitting it into smaller, focused modules.`,
+    message: `“${filename}”过大，AI 无法一次性读取。建议将其拆分为更小、职责单一的模块。`,
     cta: {
-      label: 'Split in New Session',
+      label: '在新会话中拆分',
       onClick: () => handleSplitAction(alert),
     },
     onDismiss: () => dismissInsight(alert.projectId, insightId),

@@ -67,7 +67,7 @@ describe('buildResumeWithProviderItems', () => {
     expect(items).toHaveLength(2);
     expect(items[0].className).toBe('tab-context-menu-separator');
     expect(items[1].className).toBe('tab-context-menu-item');
-    expect(items[1].textContent).toBe('Resume with Codex CLI');
+    expect(items[1].textContent).toBe('使用 Codex CLI 恢复');
 
     (items[1] as unknown as FakeElement).dispatchClick();
     expect(onPick).toHaveBeenCalledWith('codex');

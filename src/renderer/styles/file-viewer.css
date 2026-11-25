@@ -485,6 +485,28 @@
   flex-shrink: 0;
 }
 
+.file-reader-close {
+  background: none;
+  border: 1px solid transparent;
+  color: var(--text-secondary);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.file-reader-close:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--border);
+}
+
 .file-reader-token-badge {
   font-size: 10px;
   font-weight: 500;

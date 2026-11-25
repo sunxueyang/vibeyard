@@ -24,15 +24,15 @@ describe('validatePin', () => {
   });
 
   it('rejects PIN shorter than 4 digits', () => {
-    expect(validatePin('123')).toMatch(/at least 4/);
+    expect(validatePin('123')).toMatch(/至少为 4/);
   });
 
   it('rejects PIN longer than 8 digits', () => {
-    expect(validatePin('123456789')).toMatch(/at most 8/);
+    expect(validatePin('123456789')).toMatch(/最多为 8/);
   });
 
   it('rejects non-digit characters', () => {
-    expect(validatePin('12ab')).toMatch(/only digits/);
+    expect(validatePin('12ab')).toMatch(/只能包含数字/);
   });
 
   it('rejects empty string', () => {

@@ -32,15 +32,15 @@ function statusClass(status: ReadinessCheckStatus): string {
 }
 
 function effortLabel(effort: ReadinessEffort): string {
-  if (effort === 'low') return 'low effort';
-  if (effort === 'medium') return 'medium effort';
-  return 'high effort';
+  if (effort === 'low') return '低投入';
+  if (effort === 'medium') return '中投入';
+  return '高投入';
 }
 
 function impactLabel(impact: number): string {
-  if (impact >= 75) return 'high impact';
-  if (impact >= 45) return 'medium impact';
-  return 'low impact';
+  if (impact >= 75) return '高影响';
+  if (impact >= 45) return '中影响';
+  return '低影响';
 }
 
 function checkPriority(check: ReadinessCheck): number {
@@ -79,7 +79,7 @@ function countByStatus(result: ReadinessResult): Record<StatusFilter, number> {
 
 function handleFix(projectId: string, check: ReadinessCheck): void {
   if (!check.fixPrompt) return;
-  const session = appState.addPlanSession(projectId, `Fix: ${check.name}`);
+  const session = appState.addPlanSession(projectId, `修复：${check.name}`);
   if (!session) return;
   setPendingPrompt(session.id, check.fixPrompt);
 }
@@ -98,7 +98,7 @@ function createGauge(score: number, prevScore: number | null, animateFromScore: 
   const svg = document.createElementNS(SVG_NS, 'svg');
   svg.setAttribute('viewBox', '0 0 96 96');
   svg.setAttribute('class', 'readiness-gauge-svg');
-  svg.setAttribute('aria-label', `Readiness score: ${score}%`);
+  svg.setAttribute('aria-label', `就绪度评分：${score}%`);
 
   const track = document.createElementNS(SVG_NS, 'circle');
   track.setAttribute('class', 'readiness-gauge-track');
@@ -195,7 +195,7 @@ export const createReadinessWidget: WidgetFactory = (host: WidgetHost): WidgetIn
       const infoBtn = document.createElement('button');
       infoBtn.type = 'button';
       infoBtn.className = 'readiness-info-btn';
-      infoBtn.setAttribute('aria-label', 'Why this matters');
+      infoBtn.setAttribute('aria-label', '为什么这很重要');
       infoBtn.textContent = 'i';
       attachHoverCard(infoBtn, check.rationale);
       name.appendChild(infoBtn);
@@ -217,7 +217,7 @@ export const createReadinessWidget: WidgetFactory = (host: WidgetHost): WidgetIn
 
       const fixBtn = document.createElement('button');
       fixBtn.className = 'readiness-fix-btn';
-      fixBtn.textContent = 'Fix';
+      fixBtn.textContent = '修复';
       fixBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         handleFix(projectId, check);
@@ -226,7 +226,7 @@ export const createReadinessWidget: WidgetFactory = (host: WidgetHost): WidgetIn
       const customBtn = document.createElement('button');
       customBtn.className = 'readiness-fix-dropdown-btn';
       customBtn.textContent = '▼';
-      customBtn.title = 'Fix in custom session';
+      customBtn.title = '在自定义会话中修复';
       customBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         handleFixCustomSession(check);
@@ -300,7 +300,7 @@ export const createReadinessWidget: WidgetFactory = (host: WidgetHost): WidgetIn
 
     const header = document.createElement('div');
     header.className = 'readiness-quick-wins-header';
-    header.innerHTML = `<span class="readiness-quick-wins-icon">⚡</span><span class="readiness-quick-wins-title">Quick wins</span><span class="readiness-quick-wins-sub">Top fixes ranked by effort × impact</span>`;
+    header.innerHTML = `<span class="readiness-quick-wins-icon">⚡</span><span class="readiness-quick-wins-title">快速见效</span><span class="readiness-quick-wins-sub">按投入×影响排序的优先修复项</span>`;
     section.appendChild(header);
 
     for (const check of wins) {
@@ -331,7 +331,7 @@ export const createReadinessWidget: WidgetFactory = (host: WidgetHost): WidgetIn
 
       const fixBtn = document.createElement('button');
       fixBtn.className = 'readiness-fix-btn';
-      fixBtn.textContent = 'Fix';
+      fixBtn.textContent = '修复';
       fixBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         handleFix(projectId, check);
@@ -347,10 +347,10 @@ export const createReadinessWidget: WidgetFactory = (host: WidgetHost): WidgetIn
   const renderStatusChips = (result: ReadinessResult): HTMLElement => {
     const counts = countByStatus(result);
     const chips: { id: StatusFilter; label: string; count: number }[] = [
-      { id: 'all', label: 'All', count: counts.all },
-      { id: 'fail', label: 'Failing', count: counts.fail },
-      { id: 'warning', label: 'Warnings', count: counts.warning },
-      { id: 'pass', label: 'Passing', count: counts.pass },
+      { id: 'all', label: '全部', count: counts.all },
+      { id: 'fail', label: '失败', count: counts.fail },
+      { id: 'warning', label: '警告', count: counts.warning },
+      { id: 'pass', label: '通过', count: counts.pass },
     ];
 
     const row = document.createElement('div');
@@ -386,7 +386,7 @@ export const createReadinessWidget: WidgetFactory = (host: WidgetHost): WidgetIn
 
     const description = document.createElement('span');
     description.className = 'readiness-filter-description';
-    description.textContent = 'Uncheck a provider to exclude its checks from this readiness score.';
+    description.textContent = '取消勾选某模型，可将其检查项排除在就绪度评分之外。';
     section.appendChild(description);
 
     const row = document.createElement('div');
@@ -394,7 +394,7 @@ export const createReadinessWidget: WidgetFactory = (host: WidgetHost): WidgetIn
 
     const label = document.createElement('span');
     label.className = 'readiness-filter-label';
-    label.textContent = 'Include:';
+    label.textContent = '包含：';
     row.appendChild(label);
 
     const excluded = new Set(appState.preferences.readinessExcludedProviders ?? []);
@@ -435,7 +435,7 @@ export const createReadinessWidget: WidgetFactory = (host: WidgetHost): WidgetIn
 
     const scanBtn = document.createElement('button');
     scanBtn.className = 'readiness-scan-btn';
-    scanBtn.textContent = scanning ? 'Scanning...' : (result ? 'Rescan' : 'Scan');
+    scanBtn.textContent = scanning ? '扫描中…' : (result ? '重新扫描' : '扫描');
     scanBtn.disabled = scanning;
     scanBtn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -451,12 +451,12 @@ export const createReadinessWidget: WidgetFactory = (host: WidgetHost): WidgetIn
     if (scanning && !result) {
       const loading = document.createElement('div');
       loading.className = 'readiness-loading';
-      loading.textContent = 'Analyzing project...';
+      loading.textContent = '正在分析项目…';
       body.appendChild(loading);
     } else if (!result) {
       const empty = document.createElement('div');
       empty.className = 'project-tab-empty';
-      empty.textContent = 'No scan yet. Click Scan to analyze this project.';
+      empty.textContent = '尚未扫描，点击“扫描”分析此项目。';
       body.appendChild(empty);
     } else {
       const scoreRow = document.createElement('div');
@@ -472,12 +472,12 @@ export const createReadinessWidget: WidgetFactory = (host: WidgetHost): WidgetIn
 
       const scoreLabel = document.createElement('div');
       scoreLabel.className = 'project-tab-readiness-score-label';
-      scoreLabel.textContent = 'Overall readiness';
+      scoreLabel.textContent = '总体就绪度';
       scoreInfo.appendChild(scoreLabel);
 
       const scannedAt = document.createElement('div');
       scannedAt.className = 'project-tab-readiness-scanned-at';
-      scannedAt.textContent = `Scanned ${new Date(result.scannedAt).toLocaleString()}`;
+      scannedAt.textContent = `扫描时间：${new Date(result.scannedAt).toLocaleString()}`;
       scoreInfo.appendChild(scannedAt);
 
       scoreRow.appendChild(scoreInfo);
@@ -506,7 +506,7 @@ export const createReadinessWidget: WidgetFactory = (host: WidgetHost): WidgetIn
       if (!renderedAny) {
         const empty = document.createElement('div');
         empty.className = 'project-tab-empty readiness-filter-empty';
-        empty.textContent = 'No checks match this filter.';
+        empty.textContent = '没有符合此筛选条件的检查项。';
         categories.appendChild(empty);
       }
 
@@ -528,7 +528,7 @@ export const createReadinessWidget: WidgetFactory = (host: WidgetHost): WidgetIn
       const result = await window.vibeyard.readiness.analyze(project.path, excluded.length > 0 ? excluded : undefined);
       appState.setProjectReadiness(project.id, result);
     } catch (err) {
-      console.warn('Readiness scan failed:', err);
+      console.warn('就绪度扫描失败：', err);
     } finally {
       scanning = false;
       render();

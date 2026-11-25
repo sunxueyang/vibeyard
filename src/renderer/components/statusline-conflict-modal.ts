@@ -14,11 +14,11 @@ function getOverlay(): HTMLElement {
   overlay.style.display = 'none';
   overlay.innerHTML = `
     <div class="modal-box statusline-conflict-box">
-      <div class="modal-title">Settings Conflict</div>
+      <div class="modal-title">设置冲突</div>
       <div class="modal-body statusline-conflict-body"></div>
       <div class="modal-actions">
-        <button id="statusline-conflict-keep" class="btn-secondary">Keep Existing</button>
-        <button id="statusline-conflict-replace" class="btn-primary">Replace</button>
+        <button id="statusline-conflict-keep" class="btn-secondary">保留现有</button>
+        <button id="statusline-conflict-replace" class="btn-primary">替换</button>
       </div>
     </div>`;
   document.body.appendChild(overlay);
@@ -39,15 +39,15 @@ export function showStatusLineConflictModal(foreignCommand: string): Promise<'re
 
   body.innerHTML = `
     <p class="statusline-conflict-text">
-      Claude Code already has a <strong>statusLine</strong> setting configured by another tool.
+      Claude Code 已有一个由其他工具配置的 <strong>statusLine</strong> 设置。
     </p>
     <div class="statusline-conflict-command">
-      <div class="statusline-conflict-command-label">Current statusLine</div>
+      <div class="statusline-conflict-command-label">当前 statusLine</div>
       <code>${escapeHtml(foreignCommand)}</code>
     </div>
     <p class="statusline-conflict-text statusline-conflict-warning">
-      Vibeyard needs its own statusLine for cost tracking and context window monitoring.
-      If you keep the existing setting, these features will be unavailable.
+      Vibeyard 需要自己的 statusLine 来进行成本跟踪与上下文窗口监控。
+      如果保留现有设置，这些功能将不可用。
     </p>`;
 
   overlay.style.display = '';

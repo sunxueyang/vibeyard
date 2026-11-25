@@ -1,8 +1,9 @@
 import { appState, ProjectRecord } from '../state.js';
-import { onChange as onGitStatusChange, gitChangeCount, getActiveGitPath, getWorktrees, setActiveWorktree, onWorktreeChange } from '../git-status.js';
+import { onChange as onGitStatusChange, gitChangeCount, getGitStatus, getActiveGitPath, getWorktrees, setActiveWorktree, onWorktreeChange, refreshGitStatus } from '../git-status.js';
 import { onChange as onStatusChange } from '../session-activity.js';
 import { showFileViewer } from './file-viewer.js';
 import { areaLabel } from '../dom-utils.js';
+import { t } from '../i18n.js';
 import type { GitFileEntry } from '../types.js';
 
 const MAX_FILES = 100;
@@ -62,19 +63,19 @@ function showGitFileContextMenu(x: number, y: number, entry: GitFileEntry, gitPa
   menu.style.top = `${y}px`;
 
   if (entry.area === 'staged') {
-    menu.appendChild(createMenuItem('Unstage', async () => {
+    menu.appendChild(createMenuItem(t('gitPanel.unstage'), async () => {
       await window.vibeyard.git.unstageFile(gitPath, entry.path);
       afterAction();
     }));
   } else {
-    menu.appendChild(createMenuItem('Stage', async () => {
+    menu.appendChild(createMenuItem(t('gitPanel.stage'), async () => {
       await window.vibeyard.git.stageFile(gitPath, entry.path);
       afterAction();
     }));
   }
 
   if (entry.area !== 'staged' && entry.area !== 'conflicted') {
-    menu.appendChild(createMenuItem('Discard Changes', async () => {
+    menu.appendChild(createMenuItem(t('gitPanel.discard'), async () => {
       const msg = discardConfirmMessage(entry);
       if (confirm(msg)) {
         await window.vibeyard.git.discardFile(gitPath, entry.path, entry.area);
@@ -85,11 +86,11 @@ function showGitFileContextMenu(x: number, y: number, entry: GitFileEntry, gitPa
 
   menu.appendChild(createSeparator());
 
-  menu.appendChild(createMenuItem('Open in Editor', async () => {
+  menu.appendChild(createMenuItem(t('gitPanel.openInEditor'), async () => {
     await window.vibeyard.git.openInEditor(gitPath, entry.path);
   }));
 
-  menu.appendChild(createMenuItem('Copy Path', () => {
+  menu.appendChild(createMenuItem(t('gitPanel.copyPath'), () => {
     navigator.clipboard.writeText(entry.path);
   }));
 
@@ -111,10 +112,10 @@ function esc(s: string): string {
 
 function discardConfirmMessage(entry: GitFileEntry): string {
   if (entry.area !== 'untracked') {
-    return `Discard changes to "${entry.path}"? This cannot be undone.`;
+    return t('gitPanel.discardTrackedConfirm', { path: entry.path });
   }
-  const kind = entry.path.endsWith('/') ? 'folder' : 'file';
-  return `Delete untracked ${kind} "${entry.path}"?`;
+  const kind = entry.path.endsWith('/') ? t('gitPanel.kindFolder') : t('gitPanel.kindFile');
+  return t('gitPanel.discardUntrackedConfirm', { kind, path: entry.path });
 }
 
 function statusBadge(entry: GitFileEntry): string {
@@ -239,9 +240,27 @@ function refreshMounted(): void {
     gitPanelEl.appendChild(body);
   }
 
+  const status = getGitStatus(project.id);
+  // First poll hasn't resolved yet: show a loading state and make sure a poll
+  // is actually running. The on-change subscription re-renders when it lands,
+  // so the panel never stays blank just because the user clicked early.
+  if (status === null) {
+    body.innerHTML = `<div class="config-loading git-loading"><span class="git-loading-spinner"></span>${t('gitPanel.loadingStatus')}</div>`;
+    lastFilesKey = '';
+    displayedGitPath = null;
+    refreshGitStatus();
+    return;
+  }
+  if (!status.isGitRepo) {
+    body.innerHTML = `<div class="config-empty">${t('gitPanel.notRepo')}</div>`;
+    lastFilesKey = '';
+    displayedGitPath = null;
+    return;
+  }
+
   const total = gitChangeCount(project.id);
-  if (total === null || total === 0) {
-    body.innerHTML = '<div class="config-empty">No uncommitted changes</div>';
+  if (total === 0) {
+    body.innerHTML = `<div class="config-empty">${t('gitPanel.noChanges')}</div>`;
     lastFilesKey = '';
     displayedGitPath = null;
     return;
@@ -255,7 +274,7 @@ async function loadFiles(body: HTMLElement, gitPath: string): Promise<void> {
   // different project/worktree (stale rows from the previous path are still
   // showing). Background refreshes of the same path stay silent.
   if (!body.hasChildNodes() || gitPath !== displayedGitPath) {
-    body.innerHTML = '<div class="config-loading git-loading"><span class="git-loading-spinner"></span>Loading changes…</div>';
+    body.innerHTML = `<div class="config-loading git-loading"><span class="git-loading-spinner"></span>${t('gitPanel.loadingChanges')}</div>`;
     lastFilesKey = '';
   }
 
@@ -264,6 +283,15 @@ async function loadFiles(body: HTMLElement, gitPath: string): Promise<void> {
     files = await window.vibeyard.git.getFiles(gitPath) as GitFileEntry[];
   } catch {
     body.innerHTML = '';
+    lastFilesKey = '';
+    displayedGitPath = null;
+    return;
+  }
+
+  // A transient empty result must not be cached as the final state, otherwise
+  // later refreshes with the same (empty) key would no-op and leave it blank.
+  if (files.length === 0) {
+    body.innerHTML = `<div class="config-empty">${t('gitPanel.noChanges')}</div>`;
     lastFilesKey = '';
     displayedGitPath = null;
     return;
@@ -307,13 +335,13 @@ async function loadFiles(body: HTMLElement, gitPath: string): Promise<void> {
       actions.className = 'git-item-actions';
 
       if (entry.area === 'staged') {
-        actions.appendChild(createActionButton('Unstage', '−', async () => {
+        actions.appendChild(createActionButton(t('gitPanel.unstage'), '−', async () => {
           await window.vibeyard.git.unstageFile(gitPath, entry.path);
           afterAction();
         }));
       } else {
         if (entry.area !== 'conflicted') {
-          actions.appendChild(createActionButton('Discard Changes', '↩', async () => {
+          actions.appendChild(createActionButton(t('gitPanel.discard'), '↩', async () => {
             const msg = discardConfirmMessage(entry);
             if (confirm(msg)) {
               await window.vibeyard.git.discardFile(gitPath, entry.path, entry.area);
@@ -321,7 +349,7 @@ async function loadFiles(body: HTMLElement, gitPath: string): Promise<void> {
             }
           }));
         }
-        actions.appendChild(createActionButton('Stage', '+', async () => {
+        actions.appendChild(createActionButton(t('gitPanel.stage'), '+', async () => {
           await window.vibeyard.git.stageFile(gitPath, entry.path);
           afterAction();
         }));
@@ -345,7 +373,7 @@ async function loadFiles(body: HTMLElement, gitPath: string): Promise<void> {
   if (remaining > 0) {
     const overflow = document.createElement('div');
     overflow.className = 'config-empty';
-    overflow.textContent = `and ${remaining} more...`;
+    overflow.textContent = t('gitPanel.moreOverflow', { count: remaining });
     fragment.appendChild(overflow);
   }
 

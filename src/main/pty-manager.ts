@@ -266,6 +266,8 @@ export async function spawnPty(
       rows: 30,
       cwd,
       env,
+      // 本机系统 ConPTY 被安全软件破坏（CreatePseudoConsole 返回 E_HANDLE），强制用 winpty
+      ...(isWin ? { useConpty: false } : {}),
     });
   } catch (err) {
     // No PTY will ever exist for this token; don't leave it registered.
@@ -413,6 +415,8 @@ export function spawnShellPty(
     rows: 15,
     cwd,
     env: shellEnv,
+    // 本机系统 ConPTY 被安全软件破坏（CreatePseudoConsole 返回 E_HANDLE），强制用 winpty
+    ...(isWin ? { useConpty: false } : {}),
   });
 
   ptyProcess.onData((data) => onData(data));

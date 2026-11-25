@@ -4,7 +4,6 @@ import { showPreferencesModal } from './preferences-modal.js';
 import { hasUnreadInProject, onChange as onUnreadChange } from '../session-unread.js';
 import { onChange as onActivityChange } from '../session-activity.js';
 import { getProjectStatus, projectInitial } from '../project-status.js';
-import { init as initDiscussionsBadge, getNewCount as getDiscussionsNewCount, markSeen as markDiscussionsSeen, onChange as onDiscussionsChange, DISCUSSIONS_URL } from '../discussions-badge.js';
 import { basename, lastSeparatorIndex } from '../../shared/platform.js';
 import { deriveProjectName } from '../../shared/project-name.js';
 import { esc } from '../dom-utils.js';
@@ -31,13 +30,10 @@ const btnPreferences = document.getElementById('btn-preferences')!;
 const sidebarEl = document.getElementById('sidebar')!;
 const resizeHandle = document.getElementById('sidebar-resize-handle')!;
 
-const sidebarDiscussionsEl = document.getElementById('sidebar-discussions')!;
 const btnToggleSidebar = document.getElementById('btn-toggle-sidebar')!;
 
 const SIDEBAR_MIN = 150;
 const SIDEBAR_MAX = 500;
-
-const ICON_DISCUSSIONS = '<svg viewBox="0 -960 960 960" width="14" height="14" fill="currentColor"><path d="m240-240-92 92q-19 19-43.5 8.5T80-177v-623q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v480q0 33-23.5 56.5T800-240H240Zm-34-80h594v-480H160v525l46-45Zm-46 0v-480 480Zm120-80h240q17 0 28.5-11.5T560-440q0-17-11.5-28.5T520-480H280q-17 0-28.5 11.5T240-440q0 17 11.5 28.5T280-400Zm0-120h400q17 0 28.5-11.5T720-560q0-17-11.5-28.5T680-600H280q-17 0-28.5 11.5T240-560q0 17 11.5 28.5T280-520Zm0-120h400q17 0 28.5-11.5T720-680q0-17-11.5-28.5T680-720H280q-17 0-28.5 11.5T240-680q0 17 11.5 28.5T280-640Z"/></svg>';
 
 export function toggleSidebar(): void {
   appState.toggleSidebar();
@@ -53,15 +49,6 @@ export function initSidebar(): void {
   btnAddProject.addEventListener('click', promptNewProject);
   btnPreferences.addEventListener('click', () => showPreferencesModal());
   btnToggleSidebar.addEventListener('click', toggleSidebar);
-
-  renderDiscussions();
-  applyDiscussionsVisibility();
-  sidebarDiscussionsEl.addEventListener('click', () => {
-    markDiscussionsSeen();
-    window.vibeyard.app.openExternal(DISCUSSIONS_URL);
-  });
-  initDiscussionsBadge();
-  onDiscussionsChange(renderDiscussions);
 
   initResizeHandle();
   appState.on('state-loaded', () => {
@@ -118,7 +105,6 @@ export function initSidebar(): void {
     if (dot) dot.className = `project-status ${getProjectStatus(project)}`;
   });
   appState.on('preferences-changed', () => {
-    applyDiscussionsVisibility();
     render();
   });
   // Adding/removing a profile or changing a default flips the badge's
@@ -602,11 +588,6 @@ function initResizeHandle(): void {
   });
 }
 
-function applyDiscussionsVisibility(): void {
-  const visible = appState.preferences.sidebarViews?.discussions ?? true;
-  sidebarDiscussionsEl.classList.toggle('hidden', !visible);
-}
-
 function confirmRemoveProject(project: ProjectRecord): void {
   const historyCount = project.sessionHistory?.length ?? 0;
   const taskCount = project.board?.tasks?.length ?? 0;
@@ -773,23 +754,3 @@ function promptProjectSettings(project: ProjectRecord): void {
     closeModal();
   });
 }
-
-let lastDiscussionsCount = -1;
-
-function renderDiscussions(): void {
-  const count = getDiscussionsNewCount();
-  if (count === lastDiscussionsCount) return;
-  lastDiscussionsCount = count;
-  // Two unread indicators: dot is shown only when sidebar is collapsed (icon visible),
-  // inline badge is shown only when expanded (text visible). CSS picks one per mode.
-  const dot = count > 0 ? '<span class="discussions-icon-dot"></span>' : '';
-  const inlineBadge = count > 0 ? ` <span class="discussions-badge">${count}</span>` : '';
-  sidebarDiscussionsEl.title = t('sidebar.discussions.tooltip');
-  sidebarDiscussionsEl.innerHTML =
-    `<span class="action-icon" aria-hidden="true">${ICON_DISCUSSIONS}${dot}</span>` +
-    `<div class="discussions-text">` +
-      `<div class="discussions-title">${esc(t('sidebar.discussions.title'))}${inlineBadge}</div>` +
-      `<div class="discussions-desc">${esc(t('sidebar.discussions.description'))}</div>` +
-    `</div>`;
-}
-

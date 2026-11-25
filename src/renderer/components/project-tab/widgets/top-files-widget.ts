@@ -28,7 +28,7 @@ export const createTopFilesWidget: WidgetFactory = (host) => {
 
   function renderRows(files: TopFile[]): void {
     if (files.length === 0) {
-      setStatus('No countable text files found.', 'empty');
+      setStatus('未找到可统计的文本文件。', 'empty');
       return;
     }
     const list = document.createElement('div');
@@ -74,8 +74,8 @@ export const createTopFilesWidget: WidgetFactory = (host) => {
 
     const splitBtn = document.createElement('button');
     splitBtn.className = 'btn-primary btn-xs widget-github-fix-main';
-    splitBtn.textContent = 'Split';
-    splitBtn.title = `Split ${file.path} into smaller modules in a new session`;
+    splitBtn.textContent = '拆分';
+    splitBtn.title = `在新会话中把 ${file.path} 拆分为更小的模块`;
     splitBtn.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -87,8 +87,8 @@ export const createTopFilesWidget: WidgetFactory = (host) => {
       const chevron = document.createElement('button');
       chevron.className = 'btn-primary btn-xs widget-github-fix-dropdown';
       chevron.textContent = '▼';
-      chevron.title = 'Split in another provider';
-      chevron.setAttribute('aria-label', 'Split in another provider');
+      chevron.title = '在其他模型中拆分';
+      chevron.setAttribute('aria-label', '在其他模型中拆分');
       chevron.setAttribute('aria-haspopup', 'menu');
       chevron.addEventListener('click', (e) => {
         e.preventDefault();
@@ -111,7 +111,7 @@ export const createTopFilesWidget: WidgetFactory = (host) => {
   }
 
   function startSplitSession(filePath: string, providerId?: ProviderId): void {
-    const session = appState.addPlanSession(host.projectId, `Split: ${filePath}`, true, providerId);
+    const session = appState.addPlanSession(host.projectId, `拆分：${filePath}`, true, providerId);
     if (!session) return;
     setPendingPrompt(session.id, buildSplitFilesPrompt([filePath]));
   }
@@ -120,24 +120,24 @@ export const createTopFilesWidget: WidgetFactory = (host) => {
     const token = ++renderToken;
     const project = appState.projects.find((p) => p.id === host.projectId);
     if (!project) {
-      setStatus('Project not found.', 'empty');
+      setStatus('未找到项目。', 'empty');
       return;
     }
 
     const { limit } = resolveTopFilesConfig(host.getConfig<Partial<TopFilesConfig>>());
-    setStatus('Scanning project files…', 'loading');
+    setStatus('正在扫描项目文件…', 'loading');
 
     try {
       const result = await window.vibeyard.fs.topFilesByTokens(project.path, limit);
       if (token !== renderToken) return;
       if (!result.ok) {
-        setStatus('Could not scan project files.', 'empty');
+        setStatus('无法扫描项目文件。', 'empty');
         return;
       }
       renderRows(result.files);
     } catch {
       if (token !== renderToken) return;
-      setStatus('Could not scan project files.', 'empty');
+      setStatus('无法扫描项目文件。', 'empty');
     }
   }
 

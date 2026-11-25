@@ -59,32 +59,32 @@ describe('encodeConnectionCode / decodeConnectionCode', () => {
   it('throws when passphrase is wrong', async () => {
     const desc = { type: 'offer', sdp: 'v=0' } as RTCSessionDescription;
     const code = await encodeConnectionCode(desc, pin);
-    await expect(decodeConnectionCode(code, 'offer', '9999')).rejects.toThrow(/could not decrypt/);
+    await expect(decodeConnectionCode(code, 'offer', '9999')).rejects.toThrow(/无法解密/);
   });
 
   it('throws when expected type does not match', async () => {
     const desc = { type: 'offer', sdp: 'v=0' } as RTCSessionDescription;
     const code = await encodeConnectionCode(desc, pin);
-    await expect(decodeConnectionCode(code, 'answer', pin)).rejects.toThrow(/expected answer/);
+    await expect(decodeConnectionCode(code, 'answer', pin)).rejects.toThrow(/期望类型为 answer/);
   });
 
   it('throws on malformed JSON inside the ciphertext', async () => {
     // Encrypt a non-JSON payload using the underlying crypto directly
     const { encryptPayload } = await import('./share-crypto.js');
     const code = await encryptPayload('not json {{{', pin);
-    await expect(decodeConnectionCode(code, 'offer', pin)).rejects.toThrow(/malformed data/);
+    await expect(decodeConnectionCode(code, 'offer', pin)).rejects.toThrow(/数据格式错误/);
   });
 
   it('throws when required fields are missing', async () => {
     const { encryptPayload } = await import('./share-crypto.js');
     const code = await encryptPayload(JSON.stringify({ type: 'offer' }), pin);
-    await expect(decodeConnectionCode(code, 'offer', pin)).rejects.toThrow(/missing required fields/);
+    await expect(decodeConnectionCode(code, 'offer', pin)).rejects.toThrow(/缺少必要字段/);
   });
 
   it('throws when type is not offer or answer', async () => {
     const { encryptPayload } = await import('./share-crypto.js');
     const code = await encryptPayload(JSON.stringify({ type: 'bogus', sdp: 'v=0' }), pin);
-    await expect(decodeConnectionCode(code, undefined, pin)).rejects.toThrow(/unexpected type/);
+    await expect(decodeConnectionCode(code, undefined, pin)).rejects.toThrow(/类型异常/);
   });
 });
 

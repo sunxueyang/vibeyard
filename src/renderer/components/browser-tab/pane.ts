@@ -49,29 +49,29 @@ export function createBrowserTabPane(sessionId: string, url?: string): void {
   const backBtn = document.createElement('button');
   backBtn.className = 'browser-nav-btn';
   backBtn.textContent = '\u25C0';
-  backBtn.title = 'Back';
+  backBtn.title = '后退';
 
   const fwdBtn = document.createElement('button');
   fwdBtn.className = 'browser-nav-btn';
   fwdBtn.textContent = '\u25B6';
-  fwdBtn.title = 'Forward';
+  fwdBtn.title = '前进';
 
   const reloadBtn = document.createElement('button');
   reloadBtn.className = 'browser-nav-btn browser-reload-btn';
   reloadBtn.textContent = '\u21BB';
   const reloadKeys = displayKeys(shortcutManager.getKeys('browser-reload'));
   const hardReloadKeys = displayKeys(shortcutManager.getKeys('browser-hard-reload'));
-  reloadBtn.title = `Reload (${reloadKeys}) \u2014 Shift-click or ${hardReloadKeys} for hard reload`;
+  reloadBtn.title = `重新加载（${reloadKeys}）— Shift 点击或按 ${hardReloadKeys} 强制重新加载`;
 
   const urlInput = document.createElement('input');
   urlInput.className = 'browser-url-input';
   urlInput.type = 'text';
-  urlInput.placeholder = 'Enter URL (e.g. localhost:3000)';
+  urlInput.placeholder = '输入网址（如 localhost:3000）';
   urlInput.value = url || '';
 
   const goBtn = document.createElement('button');
   goBtn.className = 'browser-go-btn';
-  goBtn.textContent = 'Go';
+  goBtn.textContent = '前往';
 
   // Viewport picker button + dropdown
   const viewportWrapper = document.createElement('div');
@@ -79,8 +79,8 @@ export function createBrowserTabPane(sessionId: string, url?: string): void {
 
   const viewportBtn = document.createElement('button');
   viewportBtn.className = 'browser-viewport-btn';
-  viewportBtn.textContent = 'Responsive';
-  viewportBtn.title = 'Change viewport size';
+  viewportBtn.textContent = '响应式';
+  viewportBtn.title = '更改视口尺寸';
 
   const viewportDropdown = document.createElement('div');
   viewportDropdown.className = 'browser-viewport-dropdown';
@@ -100,7 +100,7 @@ export function createBrowserTabPane(sessionId: string, url?: string): void {
 
   const customItem = document.createElement('div');
   customItem.className = 'browser-viewport-item browser-viewport-item-custom';
-  customItem.textContent = 'Custom\u2026';
+  customItem.textContent = '自定义…';
   viewportDropdown.appendChild(customItem);
 
   const customForm = document.createElement('div');
@@ -109,7 +109,7 @@ export function createBrowserTabPane(sessionId: string, url?: string): void {
   const customWInput = document.createElement('input');
   customWInput.type = 'number';
   customWInput.className = 'browser-viewport-custom-input';
-  customWInput.placeholder = 'W';
+  customWInput.placeholder = '宽';
   customWInput.min = '1';
 
   const customSep = document.createElement('span');
@@ -119,12 +119,12 @@ export function createBrowserTabPane(sessionId: string, url?: string): void {
   const customHInput = document.createElement('input');
   customHInput.type = 'number';
   customHInput.className = 'browser-viewport-custom-input';
-  customHInput.placeholder = 'H';
+  customHInput.placeholder = '高';
   customHInput.min = '1';
 
   const customApplyBtn = document.createElement('button');
   customApplyBtn.className = 'browser-viewport-custom-apply';
-  customApplyBtn.textContent = 'Apply';
+  customApplyBtn.textContent = '应用';
 
   customForm.appendChild(customWInput);
   customForm.appendChild(customSep);
@@ -137,17 +137,17 @@ export function createBrowserTabPane(sessionId: string, url?: string): void {
 
   const inspectBtn = document.createElement('button');
   inspectBtn.className = 'browser-inspect-btn';
-  inspectBtn.textContent = 'Inspect Element';
+  inspectBtn.textContent = '检查元素';
 
   const recordBtn = document.createElement('button');
   recordBtn.className = 'browser-record-btn';
-  recordBtn.textContent = '\u25CF Record';
-  recordBtn.title = 'Record browser flow';
+  recordBtn.textContent = '● 录制';
+  recordBtn.title = '录制浏览器流程';
 
   const drawBtn = document.createElement('button');
   drawBtn.className = 'browser-draw-btn';
-  drawBtn.textContent = 'Draw';
-  drawBtn.title = 'Draw on page and send annotated screenshot to AI';
+  drawBtn.textContent = '绘制';
+  drawBtn.title = '在页面上绘制，并将标注截图发送给 AI';
 
   const session = appState.findSessionById(sessionId);
   const isIsolated = !!session?.browserIsolated;
@@ -156,13 +156,13 @@ export function createBrowserTabPane(sessionId: string, url?: string): void {
   isolationBtn.className = 'browser-isolation-btn';
   isolationBtn.textContent = isIsolated ? 'Isolated' : 'Shared';
   isolationBtn.title = isIsolated
-    ? 'This tab has its own cookie jar — imported cookies and logins are not visible. Click to switch to shared.'
-    : 'This tab uses the shared cookie jar with imported Chrome data. Click to isolate this tab.';
+    ? '此标签页使用独立的 Cookie 容器，导入的 Cookie 与登录信息不可见。点击切换为共享。'
+    : '此标签页使用共享 Cookie 容器（含导入的 Chrome 数据）。点击使其隔离。';
 
   const importBtn = document.createElement('button');
   importBtn.className = 'browser-import-btn';
-  importBtn.textContent = 'Import…';
-  importBtn.title = 'Import cookies and passwords from Chrome';
+  importBtn.textContent = '导入…';
+  importBtn.title = '从 Chrome 导入 Cookie 和密码';
 
   toolbar.appendChild(backBtn);
   toolbar.appendChild(fwdBtn);
@@ -195,7 +195,7 @@ export function createBrowserTabPane(sessionId: string, url?: string): void {
 
   const ntpSubtitle = document.createElement('div');
   ntpSubtitle.className = 'browser-ntp-subtitle';
-  ntpSubtitle.textContent = 'Enter a URL above to start browsing';
+  ntpSubtitle.textContent = '在上方输入网址以开始浏览';
   newTabPage.appendChild(ntpSubtitle);
 
   const ntpLinks = document.createElement('div');
@@ -236,19 +236,19 @@ export function createBrowserTabPane(sessionId: string, url?: string): void {
   const instructionInput = document.createElement('textarea');
   instructionInput.className = 'inspect-instruction-input';
   instructionInput.rows = 3;
-  instructionInput.placeholder = 'Describe what you want to do\u2026';
+  instructionInput.placeholder = '描述你想做什么…';
 
   const submitGroup = document.createElement('div');
   submitGroup.className = 'inspect-submit-group';
 
   const submitBtn = document.createElement('button');
   submitBtn.className = 'inspect-submit-btn';
-  submitBtn.textContent = 'Send to AI';
+  submitBtn.textContent = '发送给 AI';
 
   const customBtn = document.createElement('button');
   customBtn.className = 'inspect-dropdown-btn';
   customBtn.textContent = '▼';
-  customBtn.title = 'More options — pick a session or create new';
+  customBtn.title = '更多选项——选择一个会话或新建';
 
   submitGroup.appendChild(submitBtn);
   submitGroup.appendChild(customBtn);
@@ -262,7 +262,7 @@ export function createBrowserTabPane(sessionId: string, url?: string): void {
   inspectAttachDimsCheckbox.type = 'checkbox';
   inspectAttachDimsCheckbox.checked = true;
   const inspectAttachDimsText = document.createElement('span');
-  inspectAttachDimsText.textContent = 'Attach browser dimensions to the instructions';
+  inspectAttachDimsText.textContent = '在指令中附加浏览器尺寸';
   inspectAttachDimsRow.appendChild(inspectAttachDimsCheckbox);
   inspectAttachDimsRow.appendChild(inspectAttachDimsText);
   inspectPanel.appendChild(inspectAttachDimsRow);
@@ -279,7 +279,7 @@ export function createBrowserTabPane(sessionId: string, url?: string): void {
 
   const drawHeader = document.createElement('div');
   drawHeader.className = 'inspect-tag-line';
-  drawHeader.textContent = 'Draw on the page, then describe what you want.';
+  drawHeader.textContent = '在页面上绘制，然后描述你的需求。';
   drawPanel.appendChild(drawHeader);
 
   const drawControlsRow = document.createElement('div');
@@ -288,24 +288,24 @@ export function createBrowserTabPane(sessionId: string, url?: string): void {
   const drawInstructionInput = document.createElement('textarea');
   drawInstructionInput.className = 'inspect-instruction-input';
   drawInstructionInput.rows = 3;
-  drawInstructionInput.placeholder = 'Describe what you want to do\u2026';
+  drawInstructionInput.placeholder = '描述你想做什么…';
 
   const drawSubmitGroup = document.createElement('div');
   drawSubmitGroup.className = 'inspect-submit-group';
 
   const drawClearBtn = document.createElement('button');
   drawClearBtn.className = 'inspect-clear-btn';
-  drawClearBtn.textContent = 'Clear';
-  drawClearBtn.title = 'Clear drawing';
+  drawClearBtn.textContent = '清除';
+  drawClearBtn.title = '清除绘制';
 
   const drawSubmitBtn = document.createElement('button');
   drawSubmitBtn.className = 'inspect-submit-btn';
-  drawSubmitBtn.textContent = 'Send to AI';
+  drawSubmitBtn.textContent = '发送给 AI';
 
   const drawCustomBtn = document.createElement('button');
   drawCustomBtn.className = 'inspect-dropdown-btn';
   drawCustomBtn.textContent = '▼';
-  drawCustomBtn.title = 'More options — pick a session or create new';
+  drawCustomBtn.title = '更多选项——选择一个会话或新建';
 
   drawSubmitGroup.appendChild(drawSubmitBtn);
   drawSubmitGroup.appendChild(drawCustomBtn);
@@ -324,7 +324,7 @@ export function createBrowserTabPane(sessionId: string, url?: string): void {
   drawAttachDimsCheckbox.type = 'checkbox';
   drawAttachDimsCheckbox.checked = true;
   const drawAttachDimsText = document.createElement('span');
-  drawAttachDimsText.textContent = 'Attach browser dimensions to the instructions';
+  drawAttachDimsText.textContent = '在指令中附加浏览器尺寸';
   drawAttachDimsRow.appendChild(drawAttachDimsCheckbox);
   drawAttachDimsRow.appendChild(drawAttachDimsText);
   drawPanel.appendChild(drawAttachDimsRow);
@@ -349,11 +349,11 @@ export function createBrowserTabPane(sessionId: string, url?: string): void {
 
   const flowLabel = document.createElement('span');
   flowLabel.className = 'flow-panel-label';
-  flowLabel.textContent = 'Flow (0 steps)';
+  flowLabel.textContent = '流程（0 个步骤）';
 
   const flowClearBtn = document.createElement('button');
   flowClearBtn.className = 'flow-panel-clear-btn';
-  flowClearBtn.textContent = 'Clear';
+  flowClearBtn.textContent = '清除';
 
   flowHeader.appendChild(flowLabel);
   flowHeader.appendChild(flowClearBtn);
@@ -369,7 +369,7 @@ export function createBrowserTabPane(sessionId: string, url?: string): void {
 
   const flowInstructionInput = document.createElement('textarea');
   flowInstructionInput.className = 'flow-instruction-input';
-  flowInstructionInput.placeholder = 'Describe what to do with this flow\u2026';
+  flowInstructionInput.placeholder = '描述要如何处理此流程…';
   flowInstructionInput.rows = 2;
 
   const flowSubmitGroup = document.createElement('div');
@@ -377,12 +377,12 @@ export function createBrowserTabPane(sessionId: string, url?: string): void {
 
   const flowSubmitBtn = document.createElement('button');
   flowSubmitBtn.className = 'inspect-submit-btn';
-  flowSubmitBtn.textContent = 'Send to AI';
+  flowSubmitBtn.textContent = '发送给 AI';
 
   const flowCustomBtn = document.createElement('button');
   flowCustomBtn.className = 'inspect-dropdown-btn';
   flowCustomBtn.textContent = '▼';
-  flowCustomBtn.title = 'More options — pick a session or create new';
+  flowCustomBtn.title = '更多选项——选择一个会话或新建';
 
   flowSubmitGroup.appendChild(flowSubmitBtn);
   flowSubmitGroup.appendChild(flowCustomBtn);
@@ -405,9 +405,9 @@ export function createBrowserTabPane(sessionId: string, url?: string): void {
   flowPickerMenu.className = 'flow-picker-menu';
 
   const pickerOptions: { label: string; sub: string; action: FlowPickerAction }[] = [
-    { label: 'Click',          sub: 'Navigate without recording', action: 'click' },
-    { label: 'Record',         sub: 'Capture without clicking',   action: 'record' },
-    { label: 'Click + Record', sub: 'Click and add step',         action: 'click-and-record' },
+    { label: '点击',          sub: '仅导航，不录制', action: 'click' },
+    { label: '录制',          sub: '仅录制，不点击', action: 'record' },
+    { label: '点击 + 录制',   sub: '点击并添加步骤', action: 'click-and-record' },
   ];
   for (const opt of pickerOptions) {
     const item = document.createElement('button');

@@ -14,12 +14,12 @@ import {
 // --- Costs View ---
 
 export function renderCosts(container: HTMLElement): void {
-  if (renderUnsupportedGuard(container, 'costTracking', 'Cost tracking')) return;
+  if (renderUnsupportedGuard(container, 'costTracking', '成本跟踪')) return;
 
   const events = getEvents(inspectorState.inspectedSessionId!);
 
   if (events.length === 0) {
-    container.innerHTML = `<div class="inspector-empty">${emptyMessage('No events yet')}</div>`;
+    container.innerHTML = `<div class="inspector-empty">${emptyMessage('暂无事件')}</div>`;
     return;
   }
 
@@ -39,15 +39,15 @@ export function renderCosts(container: HTMLElement): void {
   const summary = document.createElement('div');
   summary.className = 'inspector-summary';
   summary.innerHTML = `
-    <div class="inspector-summary-item"><span class="inspector-summary-label">Total Cost</span><span class="inspector-summary-value">$${totalCost.toFixed(4)}</span></div>
-    <div class="inspector-summary-item"><span class="inspector-summary-label">Total Tokens</span><span class="inspector-summary-value">${formatTokenCount(totalTokens)}</span></div>
+    <div class="inspector-summary-item"><span class="inspector-summary-label">总成本</span><span class="inspector-summary-value">$${totalCost.toFixed(4)}</span></div>
+    <div class="inspector-summary-item"><span class="inspector-summary-label">总 tokens</span><span class="inspector-summary-value">${formatTokenCount(totalTokens)}</span></div>
   `;
   container.appendChild(summary);
 
   // Cost table
   const table = document.createElement('table');
   table.className = 'inspector-table';
-  table.innerHTML = '<thead><tr><th>#</th><th>Event</th><th>Tool</th><th>Cost Delta</th><th>Cumulative</th></tr></thead>';
+  table.innerHTML = '<thead><tr><th>#</th><th>事件</th><th>工具</th><th>成本增量</th><th>累计成本</th></tr></thead>';
   const tbody = document.createElement('tbody');
 
   // Attribute each cost delta to the nearest preceding tool event,
@@ -96,7 +96,7 @@ export function renderTools(container: HTMLElement): void {
   const stats = getToolStats(inspectorState.inspectedSessionId!);
 
   if (stats.length === 0) {
-    container.innerHTML = `<div class="inspector-empty">${emptyMessage('No tool calls yet')}</div>`;
+    container.innerHTML = `<div class="inspector-empty">${emptyMessage('暂无工具调用')}</div>`;
     return;
   }
 
@@ -149,12 +149,12 @@ export function renderTools(container: HTMLElement): void {
 // --- Context View ---
 
 export function renderContext(container: HTMLElement): void {
-  if (renderUnsupportedGuard(container, 'contextWindow', 'Context window tracking')) return;
+  if (renderUnsupportedGuard(container, 'contextWindow', '上下文窗口追踪')) return;
 
   const history = getContextHistory(inspectorState.inspectedSessionId!);
 
   if (history.length === 0) {
-    container.innerHTML = `<div class="inspector-empty">${emptyMessage('No context data yet')}</div>`;
+    container.innerHTML = `<div class="inspector-empty">${emptyMessage('暂无上下文数据')}</div>`;
     return;
   }
 
@@ -166,7 +166,7 @@ export function renderContext(container: HTMLElement): void {
   const pct = latest.usedPercentage;
   const color = pct >= 90 ? 'var(--accent)' : pct >= 70 ? '#f4b400' : '#34a853';
   gauge.innerHTML = `
-    <div class="inspector-gauge-label">Context Window Usage</div>
+    <div class="inspector-gauge-label">上下文窗口占用</div>
     <div class="inspector-gauge-bar">
       <div class="inspector-gauge-fill" style="width: ${pct}%; background: ${color}"></div>
     </div>

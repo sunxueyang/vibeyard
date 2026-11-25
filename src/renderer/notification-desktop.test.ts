@@ -111,7 +111,7 @@ describe('notification-desktop', () => {
     // Title is the owning project, so same-named sessions in different projects
     // are distinguishable in the banner.
     expect(notificationInstances[0].title).toBe('Proj One');
-    expect(notificationInstances[0].options.body).toBe('Background Session is waiting for input');
+    expect(notificationInstances[0].options.body).toBe('Background Session 正在等待输入');
     expect(notificationInstances[0].options.silent).toBe(true);
   });
 
@@ -121,7 +121,7 @@ describe('notification-desktop', () => {
     setHookStatus('bg-session', 'completed');
 
     expect(notificationInstances).toHaveLength(1);
-    expect(notificationInstances[0].options.body).toBe('Background Session has completed');
+    expect(notificationInstances[0].options.body).toBe('Background Session 已完成');
   });
 
   it('should notify on working → input', () => {
@@ -130,7 +130,7 @@ describe('notification-desktop', () => {
     setHookStatus('bg-session', 'input');
 
     expect(notificationInstances).toHaveLength(1);
-    expect(notificationInstances[0].options.body).toBe('Background Session needs your input to continue');
+    expect(notificationInstances[0].options.body).toBe('Background Session 需要你输入内容以继续');
   });
 
   it('should not notify when preference is disabled', () => {
@@ -235,8 +235,8 @@ describe('notification-desktop', () => {
 
     expect(notificationInstances).toHaveLength(2);
     // Identical text, but each notification keeps its own live click listener.
-    expect(notificationInstances[0].options.body).toBe('Session 6 has completed');
-    expect(notificationInstances[1].options.body).toBe('Session 6 has completed');
+    expect(notificationInstances[0].options.body).toBe('Session 6 已完成');
+    expect(notificationInstances[1].options.body).toBe('Session 6 已完成');
     // Neither banner is closed by the other — different sessions, different entries.
     expect(notificationInstances.some(n => n.closed)).toBe(false);
 
@@ -278,6 +278,6 @@ describe('notification-desktop', () => {
 
     expect(notificationInstances).toHaveLength(1);
     expect(notificationInstances[0].title).toBe('Vibeyard');
-    expect(notificationInstances[0].options.body).toBe('Session is waiting for input');
+    expect(notificationInstances[0].options.body).toBe('会话 正在等待输入');
   });
 });
