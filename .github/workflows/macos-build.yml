@@ -35,7 +35,8 @@ jobs:
         run: npm run build
 
       - name: Package unsigned .dmg
-        run: npx electron-builder --mac dmg --${{ matrix.arch }}
+        # --publish never：禁止发布 GitHub Release，避免要求 GH_TOKEN；仅产出本地 dmg。
+        run: npx electron-builder --mac dmg --${{ matrix.arch }} --publish never
         env:
           # 关闭代码签名；未签名时 electron-builder 自动跳过公证（notarize）。
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
