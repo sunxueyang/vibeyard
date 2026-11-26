@@ -13,6 +13,7 @@ import { getGitStatus, getGitFiles, getGitDiff, getGitWorktrees, gitStageFile, g
 import { startGitWatcher, stopGitWatcher, notifyGitChanged } from './git-watcher';
 import { watchDir, unwatchDir, setFileWatcherWindow } from './file-watcher';
 import { registerMcpHandlers } from './mcp-ipc-handlers';
+import { registerFlowHandlers } from './flow-ipc-handlers';
 import { checkForUpdates, quitAndInstall } from './auto-updater';
 import { createAppMenu } from './menu';
 import { createCtlServer, type CtlServer } from './ctl-server';
@@ -932,6 +933,7 @@ export function registerIpcHandlers(): void {
   });
 
   registerMcpHandlers();
+  registerFlowHandlers();
 
   ctlServer = createCtlServer({
     commandsRoot: CTL_COMMANDS_ROOT,

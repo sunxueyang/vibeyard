@@ -175,6 +175,9 @@
     "card": {
       "edit": "Edit",
       "delete": "Delete"
+    },
+    "flow": {
+      "deleteEdge": "Delete Connection"
     }
   },
   "board": {

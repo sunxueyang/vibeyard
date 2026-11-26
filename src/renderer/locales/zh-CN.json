@@ -175,6 +175,9 @@
     "card": {
       "edit": "编辑",
       "delete": "删除"
+    },
+    "flow": {
+      "deleteEdge": "删除连接线"
     }
   },
   "board": {

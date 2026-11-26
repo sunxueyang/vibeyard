@@ -2,6 +2,7 @@ import { contextBridge, ipcRenderer, webFrame, webUtils } from 'electron';
 import type { CostData, ProviderId, CliProviderMeta, StatsCache, ReadinessResult, ToolFailureData, SettingsWarningData, SettingsValidationResult, StatusLineConflictData, InspectorEvent, ProviderConfig, ReadFileResult, FileStatResult, TopFilesResult, FsChange, DeepSearchResult, GithubFetchResult, GithubRepo, ChromeProfile, ChromeImportOptions, ChromeImportProgress, ChromeImportResult, ClipboardSource, SessionAttachments } from '../shared/types';
 import { ZOOM_MIN, ZOOM_MAX } from '../shared/types';
 import type { CtlCommand, CtlResult } from '../shared/ctl-protocol';
+import type { FlowDefinition, FlowRunRecord, FlowScope } from '../shared/flow-types';
 
 export type { CostData } from '../shared/types';
 
@@ -180,6 +181,14 @@ export interface VibeyardApi {
     onToggleInspector(callback: () => void): () => void;
     onCloseSession(callback: () => void): () => void;
     rebuild(debugMode: boolean): Promise<void>;
+  };
+  flow: {
+    list(scope: FlowScope, projectId: string | null): Promise<FlowDefinition[]>;
+    get(id: string): Promise<FlowDefinition | null>;
+    save(flow: FlowDefinition): Promise<{ success: boolean }>;
+    delete(id: string): Promise<{ success: boolean }>;
+    listRuns(flowId: string): Promise<FlowRunRecord[]>;
+    saveRun(run: FlowRunRecord): Promise<{ success: boolean }>;
   };
 }
 
@@ -391,6 +400,14 @@ const api: VibeyardApi = {
     onToggleInspector: (cb) => onChannel('menu:toggle-inspector', cb),
     onCloseSession: (cb) => onChannel('menu:close-session', cb),
     rebuild: (debugMode) => ipcRenderer.invoke('menu:rebuild', debugMode),
+  },
+  flow: {
+    list: (scope, projectId) => ipcRenderer.invoke('flow:list', scope, projectId),
+    get: (id) => ipcRenderer.invoke('flow:get', id),
+    save: (flow) => ipcRenderer.invoke('flow:save', flow),
+    delete: (id) => ipcRenderer.invoke('flow:delete', id),
+    listRuns: (flowId) => ipcRenderer.invoke('flow:listRuns', flowId),
+    saveRun: (run) => ipcRenderer.invoke('flow:saveRun', run),
   },
 };
 

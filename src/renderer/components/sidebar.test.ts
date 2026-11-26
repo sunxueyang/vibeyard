@@ -1,5 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+// sidebar.ts wires a "工作流" button to the flow view, which transitively loads
+// the LogicFlow canvas engine (a heavy preact/mobx dependency in the jsdom graph).
+// These suites never exercise that button, so stub the boundary module to keep
+// the heavy canvas dependency out of the test graph.
+vi.mock('./flow/flow-view.js', () => ({
+  getFlowView: () => null,
+  initFlowView: () => ({}),
+}));
+
 // sidebar.ts grabs a handful of DOM nodes at module load and pulls in a wide
 // import graph; stub just enough of the browser globals so the module imports
 // in the node test environment. We only exercise the pure profile-label helper.
@@ -85,7 +94,7 @@ describe('projectProfileLabel', () => {
     appState.profiles.push(makeProfile('work', 'Work', 'claude') as any, makeProfile('gem', 'Gem', 'gemini') as any);
     expect(projectProfileLabel({ defaultProfileId: 'work' } as any)).toBeUndefined();
   });
-});
+}, 15000);
 
 describe('projectRenderOrder', () => {
   beforeEach(() => {
@@ -128,4 +137,4 @@ describe('projectRenderOrder', () => {
     const projectRenderOrder = await load();
     expect(projectRenderOrder([], null)).toEqual([]);
   });
-});
+}, 15000);

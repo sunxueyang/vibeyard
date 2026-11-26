@@ -16,8 +16,9 @@ import {
 import { attachHoverCard } from './hover-card.js';
 import { mountGitPanel, closeGitPanel } from './git-panel.js';
 import { gitChangeCount, onChange as onGitStatusChange } from '../git-status.js';
-import { ICON_KANBAN, ICON_TEAM, ICON_OVERVIEW, ICON_SESSIONS, ICON_FILES, ICON_GIT } from '../icons.js';
+import { ICON_KANBAN, ICON_TEAM, ICON_OVERVIEW, ICON_SESSIONS, ICON_FILES, ICON_GIT, ICON_FLOW } from '../icons.js';
 import { t } from '../i18n.js';
+import { getFlowView } from './flow/flow-view.js';
 
 type ProjectPanel = 'history' | 'files' | 'git' | null;
 const projectPanelOpen = new Map<string, ProjectPanel>();
@@ -348,6 +349,13 @@ function buildProjectActions(
     appState.openTeamTab(project.id);
   });
   actions.appendChild(teamBtn);
+
+  const flowBtn = makeActionButton('工作流', ICON_FLOW, false);
+  flowBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    void getFlowView()?.open();
+  });
+  actions.appendChild(flowBtn);
 
   if (opts.fileTreeEnabled) {
     const filesBtn = makeActionButton(t('sidebar.files'), ICON_FILES, openPanel === 'files');

@@ -1,6 +1,7 @@
 export type { McpServer, Agent, Skill, Command, ProviderConfig, ClaudeConfig, GitWorktree, GitFileEntry, CostData, McpResult, ProviderId, CliProviderMeta, CliProviderCapabilities, StatsCache, ReadinessResult, ReadinessCategory, ReadinessCheck, ReadinessCheckStatus, ChromeProfile, ChromeImportOptions, ChromeImportProgress, ChromeImportResult, ClipboardSource } from '../shared/types.js';
 import type { CostData, ProviderConfig, GitWorktree, McpResult, ProviderId, CliProviderMeta, StatsCache, ReadinessResult, TopFilesResult, FsChange, ChromeProfile, ChromeImportOptions, ChromeImportProgress, ChromeImportResult, ClipboardSource, SessionAttachments } from '../shared/types.js';
 import type { CtlCommand, CtlResult } from '../shared/ctl-protocol.js';
+import type { FlowDefinition, FlowRunRecord, FlowScope } from '../shared/flow-types.js';
 
 export interface VibeyardApi {
   pty: {
@@ -133,5 +134,13 @@ export interface VibeyardApi {
     onToggleDebug(callback: () => void): () => void;
     onToggleInspector(callback: () => void): () => void;
     onCloseSession(callback: () => void): () => void;
+  };
+  flow: {
+    list(scope: FlowScope, projectId: string | null): Promise<FlowDefinition[]>;
+    get(id: string): Promise<FlowDefinition | null>;
+    save(flow: FlowDefinition): Promise<{ success: boolean }>;
+    delete(id: string): Promise<{ success: boolean }>;
+    listRuns(flowId: string): Promise<FlowRunRecord[]>;
+    saveRun(run: FlowRunRecord): Promise<{ success: boolean }>;
   };
 }
